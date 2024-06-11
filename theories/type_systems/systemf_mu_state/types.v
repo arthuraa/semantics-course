@@ -1246,15 +1246,14 @@ Proof.
     eapply unroll_inversion in Hty as (B & -> & Hty).
     eapply roll_inversion in Hty as (C & Heq & Hty). injection Heq as ->. done.
   - (* new *)
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
     admit.
   - (* load *)
-    (* FIXME exercise *)
+    (* TODO: exercise *)
     admit.
   - (* store *)
-    (* FIXME exercise *)
+    (* TODO: exercise *)
     admit.
-(*Qed.*)
 Admitted.
 
 Lemma typed_preservation Σ e e' h h' A:

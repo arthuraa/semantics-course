@@ -47,33 +47,32 @@ Section existential.
     TY n; <[x := A]> (<[f := (A → B)%ty]> Γ) ⊢ e : B →
     TY n; Γ ⊢ (fix: f x := e) : (A → B)).
 
-  Definition ISET : type :=
-    #0. (* FIXME: your definition *)
+  Definition ISET : type :=#0. (* TODO: your definition *)
 
   (* We represent sets as functions of type ((Int → Bool) × Int × Int),
     storing the mapping, the minimum value, and the maximum value. *)
+  
 
-  Definition iset : val :=
-    #0. (* FIXME: your definition *)
-
+  Definition iset : val :=#0. (* TODO: your definition *)
 
   Lemma iset_typed n Γ : TY n; Γ ⊢ iset : ISET.
   Proof.
-    (* FIXME *)
-  (*Qed.*)
+    (* HINT: use repeated solve_typing with an explicit apply fix_typing inbetween *)
+    (* TODO: exercise *)
   Admitted.
 
-  Definition ISETE : type :=
-    #0 (* FIXME *).
 
-  Definition add_equality : val :=
-    #0. (* FIXME *)
+  Definition ISETE : type :=#0. (* TODO: your definition *)
+
+  Definition add_equality : val :=#0. (* TODO: your definition *)
 
   Lemma add_equality_typed n Γ : TY n; Γ ⊢ add_equality : (ISET → ISETE)%ty.
   Proof.
     repeat solve_typing.
-  (*Qed.*)
+  (* Qed. *)
+    (* TODO: exercise *)
   Admitted.
+
 
 End existential.
 
@@ -99,21 +98,21 @@ Context (even_dec : val).
 Context (even_dec_typed : ∀ n Γ, TY n; Γ ⊢ even_dec : (Int → Bool)).
 
 (* a) Change [even_impl] to [even_impl_instrumented] such that [toint] asserts evenness of the argument before returned.
-You may use the [assert] expression.
+You may use the [assert] expression defined in existential_invariants.v.
 *)
 
-Definition even_impl_instrumented : val :=
-  #0. (* FIXME *)
+Definition even_impl_instrumented : val :=#0. (* TODO: your definition *)
 
 (* b) Prove that [even_impl_instrumented] is safe. You may assume that even works as intended,
   but be sure to state this here. *)
 
+
 Lemma even_impl_instrumented_safe δ:
   𝒱 even_type δ even_impl_instrumented.
 Proof.
-  (* FIXME *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 End ex4.
 
 (** ** Exercise 5 (LN Exercise 31): Abstract sums *)
@@ -134,9 +133,12 @@ Definition sum_ex_impl : val :=
 Lemma sum_ex_safe A B δ:
   𝒱 (sum_ex_type A B) δ sum_ex_impl.
 Proof.
-  (* FIXME *)
+  (* TODO: exercise *)
 Admitted.
+
 End ex5.
+
+(** For Exercise 6 and 7, see binary_logrel.v *)
 
 (** ** Exercise 8 (LN Exercise 35): Contextual equivalence *)
 Section ex8.
@@ -160,7 +162,8 @@ Qed.
 Lemma sum_ex_impl_equiv n Γ A B :
   ctx_equiv n Γ sum_ex_impl' sum_ex_impl (sum_ex_type A B).
 Proof.
-  (* FIXME *)
+  (* TODO: exercise *)
 Admitted.
+
 
 End ex8.

@@ -40,83 +40,73 @@ Qed.
 
 
 
-(** ** Definition of the logical relation. *)
-(**
-  In Coq, we need to make argument why the logical relation is well-defined precise:
-  This holds true in particular for the mutual recursion between the value relation and the expression relation
-   (note that the value relation is defined in terms of the expression relation, and vice versa).
-  We therefore define a termination measure [mut_measure] that makes sure that for each recursive call, we either
-   - decrease the size of the type
-   - or switch from the expression case to the value case.
+(* *** Definition of the logical relation. *)
+(* We reuse most of these definitions. *)
+Inductive val_or_expr : Type :=
+| inj_val : val → val_or_expr
+| inj_expr : expr → val_or_expr.
 
-  We use the Equations package to define the logical relation, as it's tedious to make the termination
-   argument work with Coq's built-in support for recursive functions---but under the hood, the Equations also
-   just encodes it as a Coq Fixpoint.
- *)
-Inductive type_case : Set :=
-  | expr_case | val_case.
-
-(* The [type_size] function just structurally descends, essentially taking the size of the "type tree". *)
+(* Note that we're using a slightly modified termination argument here. *)
 Equations type_size (t : type) : nat :=
   type_size Int := 1;
   type_size (Fun A B) := type_size A + type_size B + 2.
-(* The definition of the expression relation uses the value relation -- therefore, it needs to be larger, and we add [1]. *)
-Equations mut_measure (c : type_case) (t : type) : nat :=
-  mut_measure expr_case t := 1 + type_size t;
-  mut_measure val_case t := type_size t.
+Equations mut_measure (ve : val_or_expr) (t : type) : nat :=
+  mut_measure (inj_val _) t := type_size t;
+  mut_measure (inj_expr _) t := 1 + type_size t.
 
-Definition sem_type : Type := val → Prop.
-
-(** The main definition of the logical relation.
-  To handle the mutual recursion, both the expression and value relation are handled by one definition, with [type_case] determining the case.
-
-   The argument [v] has a type that is determined by the case of the relation (so the whole thing is dependently-typed).
-   The [by wf ..] part tells Equations to use [mut_measure] for the well-formedness argument.
- *)
-Equations type_interp (c : type_case) (t : type) (v : match c with val_case => val | expr_case => expr end) : Prop by wf (mut_measure c t) := {
-  type_interp val_case Int v =>
+Equations type_interp (ve : val_or_expr) (t : type) : Prop by wf (mut_measure ve t) := {
+  type_interp (inj_val v) Int =>
     ∃ z : Z, v = z ;
-  type_interp val_case (A → B) v =>
+  type_interp (inj_val v) (A → B) =>
     ∃ x e, v = @LamV x e ∧ closed (x :b: nil) e ∧
       ∀ e',
-        type_interp expr_case A e' →
-        type_interp expr_case B (subst' x e' e);
+        type_interp (inj_expr e') A →
+        type_interp (inj_expr (subst' x e' e)) B;
 
-  type_interp expr_case t e =>
-    (* NOTE: we now need to explicitly require that expressions here are closed. *)
-    ∃ v, big_step e v ∧ closed [] e ∧ type_interp val_case t v
+  type_interp (inj_expr e) t =>
+    (* we now need to explicitly require that expressions here are closed so
+       that we can apply them to lambdas directly. *)
+    ∃ v, big_step e v ∧ closed [] e ∧ type_interp (inj_val v) t
 }.
 Next Obligation.
-  (** [simp] is a tactic provided by [Equations]. It rewrites with the defining equations of the definition.
-    [simpl]/[cbn] will NOT unfold definitions made with Equations.
-   *)
-  repeat simp mut_measure; simp type_size. lia.
+  repeat simp mut_measure; simp type_size; lia.
 Qed.
 Next Obligation.
   simp mut_measure. simp type_size.
   destruct A; repeat simp mut_measure; repeat simp type_size; lia.
 Qed.
 
-(** We derive the expression/value relation. *)
-Definition sem_val_rel t v := type_interp val_case t v.
-Definition sem_expr_rel t e := type_interp expr_case t e.
+(* We derive the expression/value relation. *)
+Notation sem_val_rel t v := (type_interp (inj_val v) t).
+Notation sem_expr_rel t e := (type_interp (inj_expr e) t).
 
-Notation 𝒱 := sem_val_rel.
-Notation ℰ := sem_expr_rel.
+Notation 𝒱 t v := (sem_val_rel t v).
+Notation ℰ t v := (sem_expr_rel t v).
 
-Lemma val_rel_closed v A:
-  𝒱 A v → closed [] v.
-Proof.
-  induction A; simp type_interp.
-  - intros [z ->]. done.
-  - intros (x & e & -> & Hcl & _). done.
-Qed.
 
-Lemma expr_rel_closed e A :
-  ℰ A e → closed [] e.
-Proof.
-  simp type_interp. intros (v & ? & ? & _); done.
-Qed.
+(* *** Semantic typing of contexts *)
+Implicit Types
+  (θ : gmap string expr).
+
+Inductive sem_context_rel : typing_context → (gmap string expr) → Prop :=
+  | sem_context_rel_empty : sem_context_rel ∅ ∅
+  (* contexts may now contain arbitrary (semantically well-typed) expressions
+     as opposed to just values. *)
+  | sem_context_rel_insert Γ θ e x A :
+    ℰ A e →
+    sem_context_rel Γ θ →
+    sem_context_rel (<[x := A]> Γ) (<[x := e]> θ).
+
+Notation 𝒢 := sem_context_rel.
+
+(* The semantic typing judgement. Note that we require e to be closed under Γ. *)
+Definition sem_typed Γ e A :=
+  closed (elements (dom Γ)) e ∧
+  ∀ θ, 𝒢 Γ θ → ℰ A (subst_map θ e).
+Notation "Γ ⊨ e : A" := (sem_typed Γ e A) (at level 74, e, A at next level).
+
+
+(* We start by proving a couple of helper lemmas that will be useful later. *)
 
 Lemma sem_expr_rel_of_val A v:
   ℰ A v → 𝒱 A v.
@@ -126,24 +116,38 @@ Proof.
   apply Hv'.
 Qed.
 
-(** Interpret a type *)
-Definition interp_type A : sem_type := 𝒱 A.
 
-(** *** Semantic typing of contexts *)
-(** Substitutions map to expressions -- this is so that we can more easily reuse notions like closedness *)
-Implicit Types
-  (θ : gmap string expr).
 
-(* NOTE: our context now contains expressions. *)
-Inductive sem_context_rel : typing_context → (gmap string expr) → Prop :=
-  | sem_context_rel_empty : sem_context_rel ∅ ∅
-  | sem_context_rel_insert Γ θ e x A :
-    ℰ A e →
-    sem_context_rel Γ θ →
-    sem_context_rel (<[x := A]> Γ) (<[x := e]> θ).
+Lemma val_rel_closed v A:
+  𝒱 A v → closed [] v.
+Proof.
+  induction A; simp type_interp.
+  - intros [z ->]. done.
+  - intros (x & e & -> & Hcl & _). done.
+Qed.
+Lemma val_inclusion A v:
+  𝒱 A v → ℰ A v.
+Proof.
+  intros H. simp type_interp. eauto using big_step_vals, val_rel_closed.
+Qed.
+Lemma expr_rel_closed e A :
+  ℰ A e → closed [] e.
+Proof.
+  simp type_interp. intros (v & ? & ? & ?). done.
+Qed.
+Lemma sem_context_rel_closed Γ θ:
+  𝒢 Γ θ → subst_closed [] θ.
+Proof.
+  induction 1; rewrite /subst_closed.
+  - naive_solver.
+  - intros y e'. rewrite lookup_insert_Some.
+    intros [[-> <-]|[Hne Hlook]].
+    + by eapply expr_rel_closed.
+    + eapply IHsem_context_rel; last done.
+Qed.
 
-Notation 𝒢 := sem_context_rel.
 
+(* This is essentially an inversion lemma for 𝒢 *)
 Lemma sem_context_rel_exprs Γ θ x A :
   sem_context_rel Γ θ →
   Γ !! x = Some A →
@@ -158,38 +162,23 @@ Proof.
       done.
 Qed.
 
-Lemma sem_context_rel_subset Γ θ :
-  𝒢 Γ θ → dom Γ ⊆ dom θ.
+Lemma sem_context_rel_dom Γ θ :
+  𝒢 Γ θ → dom Γ = dom θ.
 Proof.
-  intros Hctx. apply elem_of_subseteq. intros x (A & Hlook)%elem_of_dom.
-  eapply sem_context_rel_exprs in Hlook as (e & Hlook & He); last done.
-  eapply elem_of_dom; eauto.
+  induction 1.
+  - by rewrite !dom_empty.
+  - rewrite !dom_insert. congruence.
 Qed.
 
-Lemma sem_context_rel_closed Γ θ:
-  𝒢 Γ θ → subst_closed [] θ.
-Proof.
-  induction 1; rewrite /subst_closed.
-  - naive_solver.
-  - intros y e'. rewrite lookup_insert_Some.
-    intros [[-> <-]|[Hne Hlook]].
-    + by eapply expr_rel_closed.
-    + eapply IHsem_context_rel; last done.
-Qed.
 
-(** The semantic typing judgment *)
-Definition sem_typed Γ e A :=
-  ∀ θ, 𝒢 Γ θ → ℰ A (subst_map θ e).
-Notation "Γ ⊨ e : A" := (sem_typed Γ e A) (at level 74, e, A at next level).
 
 
 Lemma termination e A :
   (∅ ⊢ e : A)%ty →
   ∃ v, big_step e v.
 Proof.
-  (* FIXME: prove this.
-    You may want to add suitable intermediate lemmas, just as for the cbv logrel
-      seen in the lecture. 
-  *)
-(*Qed.*)
+  (* You may want to add suitable intermediate lemmas, like we did for the cbv
+     logical relation as seen in the lecture. *)
+  (* TODO: exercise *)
 Admitted.
+

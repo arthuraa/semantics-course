@@ -7,9 +7,9 @@ Lemma contextual_ectx_step_case K e e' :
   contextual_step (fill K e) e' →
   (∃ e'', e' = fill K e'' ∧ contextual_step e e'') ∨ is_val e.
 Proof.
-  (* FIXME: exercise for you :) *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 (** ** Deterministic reduction *)
 
@@ -162,8 +162,9 @@ Lemma red_nsteps_fill K k e e' :
     red_nsteps j e e'' ∧
     red_nsteps (k - j) (fill K e'') e'.
 Proof.
-  (* FIXME: this is an exercise :) *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 (** Additionally useful stepping lemmas *)

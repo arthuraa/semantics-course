@@ -27,11 +27,10 @@ Section recursion_combinator.
 
   (** You may find an auxiliary definition [rec_body] helpful *)
   Definition rec_body (t: expr) : expr :=
-    (* FIXME *)
-    roll (λ: f x, #0).
+    roll (λ: f x, #0). (* TODO *)
 
   Definition Rec (t: expr): val :=
-    λ: x, rec_body t. (* FIXME *)
+    λ: x, rec_body t. (* TODO *)
 
   Lemma closed_rec_body t :
     is_closed [] t → is_closed [] (rec_body t).
@@ -43,6 +42,8 @@ Section recursion_combinator.
     is_val (Rec t).
   Proof. done. Qed.
 
+  
+
    Lemma Rec_red (t e: expr):
     is_val e →
     is_val t →
@@ -50,8 +51,9 @@ Section recursion_combinator.
     is_closed [] t →
     rtc contextual_step ((Rec t) e) (t (Rec t) e).
   Proof.
-    (* FIXME *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma rec_body_typing n Γ (A B: type) t :
     Γ !! x = None →
@@ -61,8 +63,9 @@ Section recursion_combinator.
     TY n; Γ ⊢ t : ((A → B) → (A → B)) →
     TY n; Γ ⊢ rec_body t : (μ: #0 → rename (+1) A → rename (+1) B).
   Proof.
-    (* FIXME *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma Rec_typing n Γ A B t:
     type_wf n A →
@@ -72,8 +75,9 @@ Section recursion_combinator.
     TY n; Γ ⊢ t : ((A → B) → (A → B)) →
     TY n; Γ ⊢ (Rec t) : (A → B).
   Proof.
-    (* FIXME *)
+    (* TODO: exercise *)
   Admitted.
+
 
 End recursion_combinator.
 
@@ -107,8 +111,9 @@ Lemma fix_red (f x: string) (e e': expr):
   f ≠ x →
   rtc contextual_step ((fix: f x := e) e')%V (sub x e' (sub f (fix: f x := e)%V e)).
 Proof.
-  (* FIXME *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma fix_typing n Γ (f x: string) (A B: type) (e: expr):
   type_wf n A →
@@ -117,55 +122,61 @@ Lemma fix_typing n Γ (f x: string) (A B: type) (e: expr):
   TY n; <[x := A]> (<[f := (A → B)%ty]> Γ) ⊢ e : B →
   TY n; Γ ⊢ (fix: f x := e) : (A → B).
 Proof.
-  (* FIXME *)
+  (* TODO: exercise *)
 Admitted.
+
 
 (** ** Exercise 1: Encode arithmetic expressions *)
 
-Definition aexpr : type := #0 (* FIXME *).
+Definition aexpr : type := #0 (* TODO *).
 
-Definition num_val (v : val) : val := #0 (* FIXME *).
-Definition num_expr (e : expr) : expr := #0 (* FIXME *).
+Definition num_val (v : val) : val := #0 (* TODO *).
+Definition num_expr (e : expr) : expr := #0 (* TODO *).
 
-Definition plus_val (v1 v2 : val) : val := #0 (* FIXME *).
-Definition plus_expr (e1 e2 : expr) : expr := #0 (* FIXME *).
+Definition plus_val (v1 v2 : val) : val := #0 (* TODO *).
+Definition plus_expr (e1 e2 : expr) : expr := #0 (* TODO *).
 
-Definition mul_val (v1 v2 : val) : val := #0 (* FIXME *).
-Definition mul_expr (e1 e2 : expr) : expr := #0 (* FIXME *).
+Definition mul_val (v1 v2 : val) : val := #0 (* TODO *).
+Definition mul_expr (e1 e2 : expr) : expr := #0 (* TODO *).
 
 Lemma num_expr_typed n Γ e :
   TY n; Γ ⊢ e : Int →
   TY n; Γ ⊢ num_expr e : aexpr.
 Proof.
   intros. solve_typing.
-  (* FIXME *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
+
 Lemma plus_expr_typed n Γ e1 e2 :
   TY n; Γ ⊢ e1 : aexpr →
   TY n; Γ ⊢ e2 : aexpr →
   TY n; Γ ⊢ plus_expr e1 e2 : aexpr.
 Proof.
   (*intros; solve_typing.*)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
+
 Lemma mul_expr_typed n Γ e1 e2 :
   TY n; Γ ⊢ e1 : aexpr →
   TY n; Γ ⊢ e2 : aexpr →
   TY n; Γ ⊢ mul_expr e1 e2 : aexpr.
 Proof.
   (*intros; solve_typing.*)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
 
+
 Definition eval_aexpr : val :=
-  #0 (* FIXME *).
+  #0. (* TODO *)
+
 Lemma eval_aexpr_typed Γ n :
   TY n; Γ ⊢ eval_aexpr : (aexpr → Int).
 Proof.
-(*Qed.*)
-(* FIXME *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 (** Exercise 3: Lists *)
@@ -177,12 +188,15 @@ Definition list_t (A : type) : type :=
   .
 
 Definition mylist_impl : val :=
-  #0 (* FIXME *)
+  #0 (* TODO *)
   .
+
+
 
 Lemma mylist_impl_sem_typed A :
   type_wf 0 A →
   ∀ k, 𝒱 (list_t A) δ_any k mylist_impl.
 Proof.
-  (* FIXME *)
+  (* TODO: exercise *)
 Admitted.
+

@@ -10,70 +10,78 @@ Implicit Types
   (e: expr)
   (v: val).
 
+
 (** * Hoare logic *)
 
 (** Entailment rules *)
-(*Check ent_equiv.*)
-(*Check ent_refl.*)
-(*Check ent_trans.*)
-(* NOTE: True = ⌜True⌝ *)
-(* NOTE: False = ⌜False⌝ *)
-(*Check ent_prove_pure.*)
-(*Check ent_assume_pure.*)
-(*Check ent_and_elim_r.*)
-(*Check ent_and_elim_l.*)
-(*Check ent_and_intro.*)
-(*Check ent_or_introl.*)
-(*Check ent_or_intror.*)
-(*Check ent_or_elim.*)
-(*Check ent_all_intro.*)
-(*Check ent_all_elim.*)
-(*Check ent_exist_intro.*)
-(*Check ent_exist_elim.*)
+Check ent_equiv.
+Check ent_refl.
+Check ent_trans.
+(* NOTE: True = ⌜True⌝ *) 
+(* NOTE: False = ⌜False⌝ *) 
+Check ent_prove_pure.
+Check ent_assume_pure.
+Check ent_and_elim_r.
+Check ent_and_elim_l.
+Check ent_and_intro.
+Check ent_or_introl.
+Check ent_or_intror.
+Check ent_or_elim.
+Check ent_all_intro.
+Check ent_all_elim.
+Check ent_exist_intro.
+Check ent_exist_elim.
 
 (** Derived entailment rules *)
 Lemma ent_weakening P Q R :
   (P ⊢ R) →
   P ∧ Q ⊢ R.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_true P :
   P ⊢ True.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_false P :
   False ⊢ P.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_and_comm P Q :
   P ∧ Q ⊢ Q ∧ P.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_or_comm P Q :
   P ∨ Q ⊢ Q ∨ P.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_all_comm {X} (Φ : X → X → iProp) :
   (∀ x y, Φ x y) ⊢ (∀ y x, Φ x y).
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_exist_comm {X} (Φ : X → X → iProp) :
   (∃ x y, Φ x y) ⊢ (∃ y x, Φ x y).
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 (** Derived Hoare rules *)
 Lemma hoare_con_pre P Q Φ e:
@@ -114,8 +122,9 @@ Lemma hoare_rec P Φ f x e v:
   ({{ P }} subst' x v (subst' f (rec: f x := e) e) {{Φ}}) →
   {{ P }} (rec: f x := e)%V v {{Φ}}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_let P Φ x e v:
   ({{ P }} subst' x v e {{Φ}}) →
@@ -132,50 +141,56 @@ Qed.
 Lemma hoare_eq_num (n m: Z):
   {{ ⌜n = m⌝ }} #n = #m {{ u, ⌜u = #true⌝ }}.
 Proof.
-  (* FIXME: exercise *)
-Admitted.
-
-Lemma hoare_neq_num (n m: Z):
-  {{ ⌜n ≠ m⌝ }} #n = #m {{ u, ⌜u = #false⌝ }}.
-Proof.
   eapply hoare_pure; first reflexivity.
-  intros Hneq. eapply hoare_pure_step.
-  { apply pure_step_neq. done. }
+  intros ->. eapply hoare_pure_step.
+  { apply pure_step_eq. done. }
   apply hoare_value_con.
   by apply ent_prove_pure.
 Qed.
 
+Lemma hoare_neq_num (n m: Z):
+  {{ ⌜n ≠ m⌝ }} #n = #m {{ u, ⌜u = #false⌝ }}.
+Proof.
+  (* TODO: exercise *)
+Admitted.
+
+
 Lemma hoare_sub (z1 z2: Z):
   {{ True }} #z1 - #z2 {{ v, ⌜v = #(z1 - z2)⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_add (z1 z2: Z):
   {{ True }} #z1 + #z2 {{ v, ⌜v = #(z1 + z2)⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_if_false P e1 e2 Φ:
   {{ P }} e2 {{ Φ }} →
   ({{ P }} if: #false then e1 else e2 {{ Φ }}).
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_if_true P e1 e2 Φ:
   {{ P }} e1 {{ Φ }} →
   ({{ P }} if: #true then e1 else e2 {{ Φ }}).
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_pure_pre φ Φ e:
   {{ ⌜φ⌝ }} e {{ Φ }} ↔ (φ → {{ True }} e {{ Φ }}).
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 (** Example: Fibonacci *)
 Definition fib: val :=
@@ -187,14 +202,16 @@ Definition fib: val :=
 Lemma fib_zero:
   {{ True }} fib #0 {{ v, ⌜v = #0⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma fib_one:
   {{ True }} fib #1 {{ v, ⌜v = #1⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma fib_succ (z n m: Z):
   {{ True }} fib #(z - 1)%Z {{ v, ⌜v = #n⌝ }} →
@@ -231,8 +248,9 @@ Lemma fib_succ_oldschool (z n m: Z):
   {{ True }} fib #(z - 2)%Z {{ v, ⌜v = #m⌝ }} →
   {{ ⌜z > 1⌝%Z }} fib #z {{ v, ⌜v = #(n + m)⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Fixpoint Fib (n: nat) :=
   match n with
@@ -397,41 +415,7 @@ Definition fac : val :=
     if: "n" = #0 then #1
     else "n" * "fac" ("n" - #1).
 
-Lemma fac_zero :
-  {{ True }} fac #0 {{ v, ⌜v = #1⌝ }}.
-Proof.
-  unfold fac. apply hoare_rec. simpl.
-  eapply hoare_pure_steps.
-  { econstructor 2.
-    { eapply pure_step_fill with (K := [IfCtx _ _]). by apply pure_step_eq. }
-    simpl. econstructor 2. { apply pure_step_if_true. }
-    reflexivity.
-  }
-  eapply hoare_value_con. by apply ent_prove_pure.
-Qed.
 
-Lemma fac_succ (n m : Z) :
-  {{ True }} fac #(n - 1) {{ v, ⌜v = #m⌝ }} →
-  {{ ⌜(n > 0)%Z⌝ }} fac #n {{ v, ⌜v = #(n * m)⌝ }}.
-Proof.
-  intros Hs. unfold fac. apply hoare_rec. simpl.
-  apply hoare_pure_pre. intros Hn.
-  eapply hoare_pure_steps.
-  { econstructor 2.
-    { eapply pure_step_fill with (K := [IfCtx _ _]).
-      apply pure_step_neq. lia. }
-    simpl. econstructor 2. { apply pure_step_if_false. }
-    fold fac. econstructor 2.
-    { eapply pure_step_fill with (K := [AppRCtx _; BinOpRCtx _ _]).
-      apply pure_step_sub.
-    }
-    simpl. reflexivity.
-  }
-  eapply hoare_bind with (K := [BinOpRCtx _ _]). { apply Hs. }
-  intros v. apply hoare_pure_pre. intros ->.
-  simpl. eapply hoare_pure_step. { apply pure_step_mul. }
-  eapply hoare_value_con. by apply ent_prove_pure.
-Qed.
 
 Fixpoint Fac (n : nat) :=
   match n with
@@ -441,8 +425,9 @@ Fixpoint Fac (n : nat) :=
 Lemma fac_computes_Fac (n : nat) :
   {{ True }} fac #n {{ v, ⌜v = #(Fac n)⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 (** * Separation Logic *)
 (*Check ent_sep_weaken.*)
@@ -453,20 +438,22 @@ Admitted.
 (*Check ent_pointsto_sep.*)
 (*Check ent_exists_sep.*)
 
-(* Note: the separating conjunction can be typed with `\sep` *)
+(* Note: The separating conjunction can usually be typed with \ast or \sep *)
 
 
 Lemma ent_pointsto_disj l l' v w :
   l ↦ v ∗ l' ↦ w ⊢ ⌜l ≠ l'⌝.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_sep_exists {X} (Φ : X → iProp) P :
   (∃ x : X, Φ x ∗ P) ⊣⊢ (∃ x : X, Φ x) ∗ P.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 (** ** Example: Chains *)
@@ -480,26 +467,30 @@ Definition chain l r : iProp := ∃ n, ⌜n > 0⌝ ∗ chain_pre n l r.
 Lemma chain_single (l r : loc) :
   l ↦ #r ⊢ chain l r.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma chain_cons (l r t : loc) :
   l ↦ #r ∗ chain r t ⊢ chain l t.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma chain_trans (l r t : loc) :
   chain l r ∗ chain r t ⊢ chain l t.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma chain_sep_false (l r t : loc) :
   chain l r ∗ chain l t ⊢ False.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Definition cycle l := chain l l.
 Lemma chain_cycle l r :
@@ -544,8 +535,9 @@ Lemma hoare_assert P e :
   {{ P }} e {{ v, ⌜v = #true⌝ }} →
   {{ P }} assert e {{ v, ⌜v = #()⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma frame_example (f : val) :
   (∀ l l' : loc, {{ l ↦ #0 }} f #l #l' {{ _, l ↦ #42 }}) →
@@ -602,8 +594,9 @@ Definition swap : val :=
 Lemma swap_correct (l r: loc) (v w: val):
   {{ l ↦ v ∗ r ↦ w }} swap #l #r {{ _, l ↦ w ∗ r ↦ v }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 
@@ -716,26 +709,28 @@ Qed.
 Lemma new_ll_correct :
   {{ True }} new_ll #() {{ v, is_ll [] v }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma cons_ll_correct (v x : val) xs :
   {{ is_ll xs v }} cons_ll x v {{ u, is_ll (x :: xs) u }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma head_ll_correct (v x : val) xs :
   {{ is_ll (x :: xs) v }} head_ll v {{ w, ⌜w = x⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
 
 
 Lemma tail_ll_correct v x xs :
   {{ is_ll (x :: xs) v }} tail_ll v {{ w, is_ll xs w }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
 
 
@@ -743,11 +738,11 @@ Admitted.
 Lemma len_ll_correct v xs :
   {{ is_ll xs v }} len_ll v {{ w, ⌜w = #(length xs)⌝ ∗ is_ll xs v }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
 
 
-(** Exercise: Prove your strengthened specification for [tail]. *)
+(** Exercise: State and prove a strengthened specification for [tail]. *)
 Lemma tail_ll_strengthened v x xs :
   {{ is_ll (x :: xs) v }} tail_ll v {{ w, False (* FIXME *) }}.
 Proof.

@@ -15,7 +15,7 @@ Implicit Types
 
 Lemma not_every_type_inhabited : ¬ ∃ e, TY 0; ∅ ⊢ e : (∀: #0).
 Proof.
-  intros (e & Hty%sem_soundness).
+  intros (e & [Htycl Hty]%sem_soundness).
   specialize (Hty ∅ δ_any). simp type_interp in Hty.
   destruct Hty as (v & Hb & Hv).
   { constructor. }
@@ -32,7 +32,7 @@ Lemma all_identity :
   TY 0; ∅ ⊢ e : (∀: #0 → #0) →
   ∀ v, is_closed [] v → big_step (e <> (of_val v)) v.
 Proof.
-  intros e Hty%sem_soundness v0 Hcl_v0.
+  intros e [Htycl Hty]%sem_soundness v0 Hcl_v0.
   specialize (Hty ∅ δ_any). simp type_interp in Hty.
   destruct Hty as (v & Hb & Hv).
   { constructor. }

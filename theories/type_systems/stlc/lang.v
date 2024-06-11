@@ -319,3 +319,22 @@ Qed.
 
 Lemma subst_closed_nil e x es : closed [] e → subst x es e = e.
 Proof. intros. apply subst_closed with []; set_solver. Qed.
+
+Lemma val_no_step e e':
+  step e e' → is_val e → False.
+Proof.
+  by destruct 1.
+Qed.
+
+Lemma val_no_step' (v : val) (e : expr) :
+  step (of_val v) e -> False.
+Proof.
+  intros H. eapply (val_no_step _ _ H).
+  apply is_val_val.
+Qed.
+
+Ltac val_no_step :=
+  match goal with
+  | [H: step ?e1 ?e2 |- _] =>
+    solve [exfalso; eapply (val_no_step _ _ H); done]
+  end.

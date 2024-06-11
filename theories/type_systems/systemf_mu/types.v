@@ -843,12 +843,18 @@ Proof.
     + destruct H1 as [e' H1]. eexists.
       eapply (fill_contextual_step [CaseCtx e1 e2]). done.
   - (* roll *)
-    (* FIXME: exercise *)
-    admit.
+    destruct (IH HeqΓ Heqn) as [Hval|Hred].
+    + by left.
+    + right. destruct Hred as [e' Hred].
+      eexists. eapply (fill_contextual_step [RollCtx]). done.
   - (* unroll *)
-    (* FIXME: exercise *)
-    admit.
-Admitted.
+    destruct (IH HeqΓ Heqn) as [Hval|Hred].
+    + eapply canonical_values_rec in Hty as (e' & -> & Hval'); last done.
+      right. eexists. eapply base_contextual_step. by econstructor.
+    + right. destruct Hred as [e' Hred].
+      eexists. eapply (fill_contextual_step [UnrollCtx]). done.
+Qed.
+
 
 Definition ectx_item_typing (K: ectx_item) (A B: type) :=
   ∀ e, TY 0; ∅ ⊢ e : A → TY 0; ∅ ⊢ (fill_item K e) : B.
@@ -1024,8 +1030,9 @@ Proof.
   - eapply case_inversion in Hty as (B & C & (? & ? & [= <- <-] & Hty & ?)%injr_inversion & ? & ?).
     eauto.
   - (* unroll *)
-    (* FIXME: exercise *)
-Admitted.
+    eapply unroll_inversion in Hty as (B & -> & Hty).
+    eapply roll_inversion in Hty as (C & Heq & Hty). injection Heq as ->. done.
+Qed.
 
 Lemma typed_preservation e e' A:
   TY 0; ∅ ⊢ e : A →

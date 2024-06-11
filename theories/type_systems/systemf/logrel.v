@@ -15,20 +15,27 @@ Implicit Types
   (e : expr)
   (A : type).
 
-(** ** Definition of the logrel *)
-(**
-  In Coq, we need to make argument why the logical relation is well-defined precise:
-  This holds true in particular for the mutual recursion between the value relation and the expression relation.
-  We therefore define a termination measure [mut_measure] that makes sure that for each recursive call, we either
-   - decrease the size of the type
-   - or switch from the expression case to the value case.
+(* *** Definition of the logical relation. *)
+(* In Coq, we need to make argument why the logical relation is well-defined
+   precise: 
+   In particular, we need to show that the mutual recursion between the value
+   relation and the expression relation, which are defined in terms of each
+   other, terminates. We therefore define a termination measure [mut_measure]
+   that makes sure that for each recursive call, we either decrease the size of
+   the type or switch from the expression case to the value case.
 
-  We use the Equations package to define the logical relation, as it's tedious to make the termination
-   argument work with Coq's built-in support for recursive functions.
+   We use the Equations package to define the logical relation, as it's tedious
+   to make the termination argument work with Coq's built-in support for
+   recursive functions---but under the hood, Equations also just encodes it as
+   a Coq Fixpoint.
  *)
-Inductive type_case : Set :=
-  | expr_case | val_case.
+Inductive val_or_expr : Type :=
+| inj_val : val → val_or_expr
+| inj_expr : expr → val_or_expr.
 
+(* The [type_size] function essentially computes the size of the "type tree". *)
+(* Note that we have added some additional primitives to make our (still
+   simple) language more expressive. *)
 Equations type_size (A : type) : nat :=
   type_size Int := 1;
   type_size Bool := 1;
@@ -38,12 +45,11 @@ Equations type_size (A : type) : nat :=
   type_size (∀: A) := type_size A + 2;
   type_size (∃: A) := type_size A + 2;
   type_size (A × B) := type_size A + type_size B + 1;
-  type_size (A + B) := max (type_size A) (type_size B) + 1
-.
-
-Equations mut_measure (c : type_case) A : nat :=
-  mut_measure expr_case A := 1 + type_size A;
-  mut_measure val_case A := type_size A.
+  type_size (A + B) := max (type_size A) (type_size B) + 1.
+(* The definition of the expression relation uses the value relation -- therefore, it needs to be larger, and we add [1]. *)
+Equations mut_measure (ve : val_or_expr) (t : type) : nat :=
+  mut_measure (inj_val _) t := type_size t;
+  mut_measure (inj_expr _) t := 1 + type_size t.
 
 (** A semantic type consists of a value-predicate and a proof of closedness *)
 Record sem_type := mk_ST {
@@ -68,41 +74,40 @@ Tactic Notation "specialize_sem_type" constr(S) "with" uconstr(P) "as" ident(N) 
 Definition tyvar_interp := nat → sem_type.
 Implicit Types
   (δ : tyvar_interp)
-  (τ : sem_type)
-.
+  (τ : sem_type).
 
 (** The logical relation *)
-Equations type_interp (c : type_case) (t : type) δ (v : match c with val_case => val | expr_case => expr end) : Prop by wf (mut_measure c t) := {
-  type_interp val_case Int δ v=>
+Equations type_interp (c : val_or_expr) (t : type) δ : Prop by wf (mut_measure c t) := {
+  type_interp (inj_val v) Int δ =>
     ∃ z : Z, v = #z ;
-  type_interp val_case Bool δ v =>
+  type_interp (inj_val v) Bool δ =>
     ∃ b : bool, v = #b ;
-  type_interp val_case Unit δ v =>
+  type_interp (inj_val v) Unit δ =>
     v = #LitUnit ;
-  type_interp val_case (A × B) δ v =>
-    ∃ v1 v2 : val, v = (v1, v2)%V ∧ type_interp val_case A δ v1 ∧ type_interp val_case B δ v2;
-  type_interp val_case (A + B) δ v =>
-    (∃ v' : val, v = InjLV v' ∧ type_interp val_case A δ v') ∨
-    (∃ v' : val, v = InjRV v' ∧ type_interp val_case B δ v');
-  type_interp val_case (A → B) δ v =>
+  type_interp (inj_val v) (A × B) δ =>
+    ∃ v1 v2 : val, v = (v1, v2)%V ∧ type_interp (inj_val v1) A δ ∧ type_interp (inj_val v2) B δ;
+  type_interp (inj_val v) (A + B) δ =>
+    (∃ v' : val, v = InjLV v' ∧ type_interp (inj_val v') A δ) ∨
+    (∃ v' : val, v = InjRV v' ∧ type_interp (inj_val v') B δ);
+  type_interp (inj_val v) (A → B) δ =>
     ∃ x e, v = LamV x e ∧ is_closed (x :b: nil) e ∧
       ∀ v',
-        type_interp val_case A δ v' →
-        type_interp expr_case B δ (subst' x (of_val v') e);
+        type_interp (inj_val v') A δ →
+        type_interp (inj_expr (subst' x (of_val v') e)) B δ;
   (** Type variable case *)
-  type_interp val_case (#α) δ v =>
+  type_interp (inj_val v) (#α) δ =>
     (δ α).(sem_type_car) v;
   (** ∀ case *)
-  type_interp val_case (∀: A) δ v =>
+  type_interp (inj_val v) (∀: A) δ =>
     ∃ e, v = TLamV e ∧ is_closed [] e ∧
-      ∀ τ, type_interp expr_case A (τ .: δ) e;
+      ∀ τ, type_interp (inj_expr e) A (τ .: δ);
   (** ∃ case *)
-  type_interp val_case (∃: A) δ v =>
+  type_interp (inj_val v) (∃: A) δ =>
     ∃ v', v = PackV v' ∧
-      ∃ τ : sem_type, type_interp val_case A (τ .: δ) v';
+      ∃ τ : sem_type, type_interp (inj_val v') A (τ .: δ);
 
-  type_interp expr_case t δ e =>
-    ∃ v, big_step e v ∧ type_interp val_case t δ v
+  type_interp (inj_expr e) t δ =>
+    ∃ v, big_step e v ∧ type_interp (inj_val v) t δ
 }.
 Next Obligation. repeat simp mut_measure; simp type_size; lia. Qed.
 Next Obligation. repeat simp mut_measure; simp type_size; lia. Qed.
@@ -117,46 +122,16 @@ Next Obligation. repeat simp mut_measure; simp type_size; lia. Qed.
 Next Obligation. repeat simp mut_measure; simp type_size; lia. Qed.
 
 (** Value relation and expression relation *)
-Definition sem_val_rel A δ v := type_interp val_case A δ v.
-Definition sem_expr_rel A δ e := type_interp expr_case A δ e.
+Notation sem_val_rel A δ v := (type_interp (inj_val v) A δ).
+Notation sem_expr_rel A δ e := (type_interp (inj_expr e) A δ).
 
-Notation 𝒱 := sem_val_rel.
-Notation ℰ := sem_expr_rel.
+Notation 𝒱 A δ v := (sem_val_rel A δ v).
+Notation ℰ A δ v := (sem_expr_rel A δ v).
 
-Lemma sem_expr_rel_of_val A δ v :
-  ℰ A δ (of_val v) → 𝒱 A δ v.
-Proof.
-  simp type_interp.
-  intros (v' & ->%big_step_val & Hv').
-  apply Hv'.
-Qed.
 
-Lemma val_rel_is_closed v δ A:
-  𝒱 A δ v → is_closed [] (of_val v).
-Proof.
-  induction A as [ | | | | | A IHA | | A IH1 B IH2 | A IH1 B IH2] in v, δ |-*; simp type_interp.
-  - by eapply sem_type_closed_val.
-  - intros [z ->]. done.
-  - intros [b ->]. done.
-  - intros ->. done.
-  - intros (e & -> & ? & _). done.
-  - intros (v' & -> & (τ & Hinterp)). simpl. by eapply IHA.
-  - intros (x & e & -> & ? & _). done.
-  - intros (v1 & v2 & -> & ? & ?). simpl; apply andb_True; split; eauto.
-  - intros [(v' & -> & ?) | (v' & -> & ?)]; simpl; eauto.
-Qed.
-
-(** Interpret a syntactic type *)
-Program Definition interp_type A δ : sem_type := {|
-  sem_type_car := 𝒱 A δ;
-|}.
-Next Obligation. by eapply val_rel_is_closed. Qed.
-
-(* Semantic typing of contexts *)
+(* *** Semantic typing of contexts *)
 Implicit Types
   (θ : gmap string expr).
-
-(** Context relation *)
 Inductive sem_context_rel (δ : tyvar_interp) : typing_context → (gmap string expr) → Prop :=
   | sem_context_rel_empty : sem_context_rel δ ∅ ∅
   | sem_context_rel_insert Γ θ v x A :
@@ -166,8 +141,68 @@ Inductive sem_context_rel (δ : tyvar_interp) : typing_context → (gmap string 
 
 Notation 𝒢 := sem_context_rel.
 
-Lemma sem_context_rel_vals {δ Γ θ x A} :
-  sem_context_rel δ Γ θ →
+
+
+(* Semantic typing judgement *)
+Definition sem_typed Δ Γ e A :=
+  is_closed (elements (dom Γ)) e ∧
+  ∀ θ δ, 𝒢 δ Γ θ → ℰ A δ (subst_map θ e).
+Notation "'TY' Δ ; Γ ⊨ e : A" := (sem_typed Δ Γ e A) (at level 74, e, A at next level).
+
+
+Lemma val_rel_closed v δ A:
+  𝒱 A δ v → is_closed [] (of_val v).
+Proof.
+  induction A as [ | | | | | A IHA | | A IH1 B IH2 | A IH1 B IH2] in v, δ |-*; simp type_interp.
+  - eapply sem_type_closed_val.
+  - intros [z ->]. done.
+  - intros [b ->]. done.
+  - intros ->. done.
+  - intros (e & -> & ? & _). done.
+  - intros (v' & -> & (τ & Hinterp)). simpl. by eapply IHA.
+  - intros (x & e & -> & ? & _). done.
+  - intros (v1 & v2 & -> & ? & ?). simpl. apply andb_True. eauto.
+  - intros [(v' & -> & ?) | (v' & -> & ?)]; simpl; eauto.
+Qed.
+
+(** Interpret a syntactic type *)
+Program Definition interp_type A δ : sem_type := {|
+  sem_type_car := fun v => 𝒱 A δ v;
+|}.
+Next Obligation. by eapply val_rel_closed. Qed.
+
+
+(* We start by proving a couple of helper lemmas that will be useful later. *)
+
+Lemma sem_expr_rel_of_val A δ v :
+  ℰ A δ (of_val v) → 𝒱 A δ v.
+Proof.
+  simp type_interp.
+  intros (v' & ->%big_step_val & Hv').
+  apply Hv'.
+Qed.
+Lemma val_inclusion A δ v:
+  𝒱 A δ v → ℰ A δ v.
+Proof.
+  intros H. simp type_interp. eauto using big_step_of_val.
+Qed.
+
+
+Lemma sem_context_rel_closed δ Γ θ:
+  𝒢 δ Γ θ → subst_is_closed [] θ.
+Proof.
+  induction 1.
+  - done.
+  - intros y e. rewrite lookup_insert_Some.
+    intros [[-> <-]|[Hne Hlook]].
+    + by eapply val_rel_closed.
+    + eapply IHsem_context_rel; last done.
+Qed.
+
+
+(* This is essentially an inversion lemma for 𝒢 *)
+Lemma sem_context_rel_vals δ Γ θ x A :
+  𝒢 δ Γ θ →
   Γ !! x = Some A →
   ∃ e v, θ !! x = Some e ∧ to_val e = Some v ∧ 𝒱 A δ v.
 Proof.
@@ -181,34 +216,19 @@ Proof.
       split; first done. done.
 Qed.
 
-Lemma sem_context_rel_subset δ Γ θ :
-  𝒢 δ Γ θ → dom Γ ⊆ dom θ.
+Lemma sem_context_rel_dom δ Γ θ :
+  𝒢 δ Γ θ → dom Γ = dom θ.
 Proof.
-  intros Hctx. apply elem_of_subseteq. intros x (A & Hlook)%elem_of_dom.
-  eapply sem_context_rel_vals in Hlook as (e & v & Hlook & Heq & Hval); last done.
-  eapply elem_of_dom; eauto.
+  induction 1.
+  - by rewrite !dom_empty.
+  - rewrite !dom_insert. congruence.
 Qed.
 
-Lemma sem_context_rel_closed δ Γ θ:
-  𝒢 δ Γ θ → subst_is_closed [] θ.
-Proof.
-  induction 1 as [ | Γ θ v x A Hv Hctx IH]; rewrite /subst_is_closed.
-  - naive_solver.
-  - intros y e. rewrite lookup_insert_Some.
-    intros [[-> <-]|[Hne Hlook]].
-    + by eapply val_rel_is_closed.
-    + eapply IH; last done.
-Qed.
-
-(** Semantic typing judgment *)
-Definition sem_typed Δ Γ e A :=
-  ∀ θ δ, 𝒢 δ Γ θ → ℰ A δ (subst_map θ e).
-Notation "'TY' Δ ;  Γ ⊨ e : A" := (sem_typed Δ Γ e A) (at level 74, e, A at next level).
 
 Section boring_lemmas.
   (** The lemmas in this section are all quite boring and expected statements,
     but are quite technical to prove due to De Bruijn binders.
-    We encourage to skip over the proofs of these lemmas.
+    We encourage you to skip over the proofs of these lemmas.
   *)
 
   Lemma sem_val_rel_ext B δ δ' v :
@@ -319,6 +339,7 @@ End boring_lemmas.
 
 Lemma compat_int Δ Γ z : TY Δ; Γ ⊨ (Lit $ LitInt z) : Int.
 Proof.
+  split; first done. 
   intros θ δ _. simp type_interp.
   exists #z. split. { simpl. constructor. }
   simp type_interp. eauto.
@@ -326,6 +347,7 @@ Qed.
 
 Lemma compat_bool Δ Γ b : TY Δ; Γ ⊨ (Lit $ LitBool b) : Bool.
 Proof.
+  split; first done. 
   intros θ δ _. simp type_interp.
   exists #b. split. { simpl. constructor. }
   simp type_interp. eauto.
@@ -333,6 +355,7 @@ Qed.
 
 Lemma compat_unit Δ Γ : TY Δ; Γ ⊨ (Lit $ LitUnit) : Unit.
 Proof.
+  split; first done. 
   intros θ δ _. simp type_interp.
   exists #LitUnit. split. { simpl. constructor. }
   simp type_interp. eauto.
@@ -342,8 +365,10 @@ Lemma compat_var Δ Γ x A :
   Γ !! x = Some A →
   TY Δ; Γ ⊨ (Var x) : A.
 Proof.
-  intros Hx θ δ Hctx; simpl.
-  specialize (sem_context_rel_vals Hctx Hx) as (e & v & He & Heq & Hv).
+  intros Hx. split.
+  { eapply bool_decide_pack, elem_of_elements, elem_of_dom_2, Hx. }
+  intros θ δ Hctx; simpl.
+  eapply sem_context_rel_vals in Hx as (e & v & He & Heq & Hv); last done.
   rewrite He. simp type_interp. exists v. split; last done.
   rewrite -(of_to_val _ _ Heq).
   by apply big_step_of_val.
@@ -354,7 +379,9 @@ Lemma compat_app Δ Γ e1 e2 A B :
   TY Δ; Γ ⊨ e2 : A →
   TY Δ; Γ ⊨ (e1 e2) : B.
 Proof.
-  intros Hfun Harg θ δ Hctx; simpl.
+  intros [Hfuncl Hfun] [Hargcl Harg]. split.
+  { simpl. eauto. }
+  intros θ δ Hctx; simpl.
 
   specialize (Hfun _ _ Hctx). simp type_interp in Hfun. destruct Hfun as (v1 & Hbs1 & Hv1).
   simp type_interp in Hv1. destruct Hv1 as (x & e & -> & Hv1).
@@ -369,68 +396,57 @@ Proof.
   eauto.
 Qed.
 
-(** Lambdas need to be closed by the context *)
-Lemma compat_lam_named Δ Γ x e A B X :
-  closed X e →
-  (∀ y, y ∈ X → y ∈ dom (<[x := A]> Γ)) →
+(* Compatibility for [lam] unfortunately needs a very technical helper lemma. *)
+Lemma lam_closed δ Γ θ (x : string) A e :
+  closed (elements (dom (<[x:=A]> Γ))) e → 
+  𝒢 δ Γ θ → 
+  closed [] (Lam x (subst_map (delete x θ) e)).
+Proof.
+  intros Hcl Hctxt.
+  eapply subst_map_closed.
+  - eapply is_closed_weaken; first done.
+    rewrite dom_delete dom_insert (sem_context_rel_dom δ Γ θ) //.
+    intros y. destruct (decide (x = y)); set_solver.
+  - intros x' e' Hx.
+    eapply (is_closed_weaken []); last set_solver.
+    eapply sem_context_rel_closed; first eassumption.
+    eapply map_subseteq_spec; last done.
+    apply map_delete_subseteq.
+Qed.
+Lemma compat_lam Δ Γ x e A B :
   TY Δ; (<[ x := A ]> Γ) ⊨ e : B →
   TY Δ; Γ ⊨ (Lam (BNamed x) e) : (A → B).
 Proof.
-  intros Hcl Hsub Hbody θ δ Hctxt. simpl.
-  simp type_interp.
-
-  exists ((λ: x, subst_map (delete x θ) e))%V.
+  intros [Hbodycl Hbody]. split.
+  { simpl. eapply is_closed_weaken; first eassumption. set_solver. }
+  intros θ Hctxt. simpl. simp type_interp.
+  eexists.
   split; first by eauto.
   simp type_interp.
-  eexists (BNamed x), _. split_and!; first reflexivity.
-  { eapply closed_subst_weaken; [ | | apply Hcl].
-    - eapply subst_is_closed_subseteq; last by eapply sem_context_rel_closed.
-      apply map_delete_subseteq.
-    - intros y Hy%Hsub Hn. apply elem_of_list_singleton.
-      apply not_elem_of_dom in Hn. apply elem_of_dom in Hy.
-      destruct (decide (x = y)) as [<- | Hneq]; first done.
-      rewrite lookup_delete_ne in Hn; last done.
-      rewrite lookup_insert_ne in Hy; last done.
-      apply sem_context_rel_subset in Hctxt.
-      move: Hctxt. rewrite elem_of_subseteq.
-      move : Hn Hy. rewrite -elem_of_dom -not_elem_of_dom.
-      naive_solver.
-  }
-
+  eexists _, _. split; first reflexivity.
+  split; first by eapply lam_closed.
   intros v' Hv'.
   specialize (Hbody (<[ x := of_val v']> θ)).
-  simpl. rewrite subst_subst_map.
-  2: { by eapply sem_context_rel_closed. }
-  apply Hbody. apply sem_context_rel_insert; done.
+  simpl. rewrite subst_subst_map; last by eapply sem_context_rel_closed.
+  apply Hbody.
+  apply sem_context_rel_insert; done.
 Qed.
 
-Lemma compat_lam_anon Δ Γ e A B X :
-  closed X e →
-  (∀ y, y ∈ X → y ∈ dom Γ) →
+Lemma compat_lam_anon Δ Γ e A B :
   TY Δ; Γ ⊨ e : B →
   TY Δ; Γ ⊨ (Lam BAnon e) : (A → B).
 Proof.
-  intros Hcl Hsub Hbody θ δ Hctxt. simpl.
-  simp type_interp.
-
-  exists (λ: <>, subst_map θ e)%V.
+  intros [Hbodycl Hbody]. split; first done.
+  intros θ Hctxt. simpl. simp type_interp.
+  eexists.
   split; first by eauto.
   simp type_interp.
-  eexists BAnon, _. split_and!; first reflexivity.
-  { simpl.
-    eapply closed_subst_weaken; [ | | apply Hcl].
-    - by eapply sem_context_rel_closed.
-    - intros y Hy%Hsub Hn.
-      apply not_elem_of_dom in Hn. apply elem_of_dom in Hy.
-      apply sem_context_rel_subset in Hctxt.
-      move: Hctxt. rewrite elem_of_subseteq.
-      move : Hn Hy. rewrite -elem_of_dom -not_elem_of_dom.
-      naive_solver.
-  }
-
-  intros v' Hv'.
-  specialize (Hbody θ).
-  simpl. apply Hbody; done.
+  eexists _, _. split; first reflexivity.
+  split.
+  { simpl. eapply subst_map_closed; simpl.
+    - by erewrite <-sem_context_rel_dom.
+    - by eapply sem_context_rel_closed. }
+  naive_solver.
 Qed.
 
 Lemma compat_int_binop Δ Γ op e1 e2 :
@@ -439,7 +455,10 @@ Lemma compat_int_binop Δ Γ op e1 e2 :
   TY Δ; Γ ⊨ e2 : Int →
   TY Δ; Γ ⊨ (BinOp op e1 e2) : Int.
 Proof.
-  intros Hop He1 He2 θ δ Hctx. simpl.
+  intros Hop [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He1 _ _ Hctx). specialize (He2 _ _ Hctx).
   simp type_interp in He1. simp type_interp in He2.
@@ -467,7 +486,10 @@ Lemma compat_int_bool_binop Δ Γ op e1 e2 :
   TY Δ; Γ ⊨ e2 : Int →
   TY Δ; Γ ⊨ (BinOp op e1 e2) : Bool.
 Proof.
-  intros Hop He1 He2 θ δ Hctx. simpl.
+  intros Hop [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He1 _ _ Hctx). specialize (He2 _ _ Hctx).
   simp type_interp in He1. simp type_interp in He2.
@@ -494,7 +516,9 @@ Lemma compat_unop Δ Γ op A B e :
   TY Δ; Γ ⊨ e : A →
   TY Δ; Γ ⊨ (UnOp op e) : B.
 Proof.
-  intros Hop He θ δ Hctx. simpl.
+  intros Hop [Hecl He].
+  split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp. specialize (He _ _ Hctx).
   simp type_interp in He.
 
@@ -510,28 +534,23 @@ Proof.
     + by eexists _.
 Qed.
 
-Lemma compat_tlam Δ Γ e A X :
-  closed X e →
-  (∀ y, y ∈ X → y ∈ dom Γ) →
+Lemma compat_tlam Δ Γ e A :
   TY S Δ; (⤉ Γ) ⊨ e : A →
   TY Δ; Γ ⊨ (Λ, e) : (∀: A).
 Proof.
-  intros Hcl Hsub He θ δ Hctx. simpl.
+  intros [Hecl He]. split.
+  { simpl. by erewrite <-dom_fmap. }
+  intros θ δ Hctx. simpl.
   simp type_interp.
   exists (Λ, subst_map θ e)%V.
   split; first constructor.
 
   simp type_interp.
   eexists _. split_and!; first done.
-  { eapply closed_subst_weaken; [ | | apply Hcl].
-    - by eapply sem_context_rel_closed.
-    - intros y Hy%Hsub Hn. exfalso.
-      apply not_elem_of_dom in Hn. apply elem_of_dom in Hy.
-      apply sem_context_rel_subset in Hctx.
-      move: Hctx. rewrite elem_of_subseteq.
-      move : Hn Hy. rewrite -elem_of_dom -not_elem_of_dom.
-      naive_solver.
-  }
+  { simpl. eapply subst_map_closed; simpl.
+    - erewrite <-sem_context_rel_dom; last eassumption. 
+      by erewrite <-dom_fmap.
+    - by eapply sem_context_rel_closed. }
   intros τ. eapply He.
   by eapply sem_context_rel_cons.
 Qed.
@@ -541,9 +560,9 @@ Lemma compat_tapp Δ Γ e A B :
   TY Δ; Γ ⊨ e : (∀: A) →
   TY Δ; Γ ⊨ (e <>) : (A.[B/]).
 Proof.
-  (* TODO: exercise for you *)
+  (* TODO: exercise *)
 Admitted.
-(*Qed.*)
+
 
 Lemma compat_pack Δ Γ e n A B :
   type_wf n B →
@@ -551,9 +570,10 @@ Lemma compat_pack Δ Γ e n A B :
   TY n; Γ ⊨ e : A.[B/] →
   TY n; Γ ⊨ (pack e) : (∃: A).
 Proof.
-  (* TODO: this will be an exercise for you soon. *)
-(*Qed.*)
+  (* This will be an exercise for you next week :) *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_unpack n Γ A B e e' x :
   type_wf n B →
@@ -561,9 +581,10 @@ Lemma compat_unpack n Γ A B e e' x :
   TY S n; <[x:=A]> (⤉Γ) ⊨ e' : B.[ren (+1)] →
   TY n; Γ ⊨ (unpack e as BNamed x in e') : B.
 Proof.
-  (* TODO: this will be an exercise for you soon *)
-(*Qed.*)
+  (* This will be an exercise for you next week :) *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_if n Γ e0 e1 e2 A :
   TY n; Γ ⊨ e0 : Bool →
@@ -571,7 +592,9 @@ Lemma compat_if n Γ e0 e1 e2 A :
   TY n; Γ ⊨ e2 : A →
   TY n; Γ ⊨ (if: e0 then e1 else e2) : A.
 Proof.
-  intros He0 He1 He2 θ δ Hctx. simpl.
+  intros [He0cl He0] [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He0 _ _ Hctx). simp type_interp in He0.
   specialize (He1 _ _ Hctx). simp type_interp in He1.
@@ -591,7 +614,9 @@ Lemma compat_pair Δ Γ e1 e2 A B :
   TY Δ; Γ ⊨ e2 : B →
   TY Δ; Γ ⊨ (e1, e2) : A × B.
 Proof.
-  intros He1 He2 θ δ Hctx. simpl.
+  intros [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He1 _ _ Hctx). simp type_interp in He1.
   destruct He1 as (v1 & Hb1 & Hv1).
@@ -605,7 +630,8 @@ Lemma compat_fst Δ Γ e A B :
   TY Δ; Γ ⊨ e : A × B →
   TY Δ; Γ ⊨ Fst e : A.
 Proof.
-  intros He θ δ Hctx. simpl.
+  intros [Hecl He]. split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He _ _ Hctx). simp type_interp in He.
   destruct He as (v & Hb & Hv).
@@ -617,7 +643,8 @@ Lemma compat_snd Δ Γ e A B :
   TY Δ; Γ ⊨ e : A × B →
   TY Δ; Γ ⊨ Snd e : B.
 Proof.
-  intros He θ δ Hctx. simpl.
+  intros [Hecl He]. split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He _ _ Hctx). simp type_interp in He.
   destruct He as (v & Hb & Hv).
@@ -629,7 +656,8 @@ Lemma compat_injl Δ Γ e A B :
   TY Δ; Γ ⊨ e : A →
   TY Δ; Γ ⊨ InjL e : A + B.
 Proof.
-  intros He θ δ Hctx. simpl.
+  intros [Hecl He]. split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He _ _ Hctx). simp type_interp in He.
   destruct He as (v & Hb & Hv).
@@ -641,7 +669,8 @@ Lemma compat_injr Δ Γ e A B :
   TY Δ; Γ ⊨ e : B →
   TY Δ; Γ ⊨ InjR e : A + B.
 Proof.
-  intros He θ δ Hctx. simpl.
+  intros [Hecl He]. split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He _ _ Hctx). simp type_interp in He.
   destruct He as (v & Hb & Hv).
@@ -655,7 +684,9 @@ Lemma compat_case Δ Γ e e1 e2 A B C :
   TY Δ; Γ ⊨ e2 : (C → A) →
   TY Δ; Γ ⊨ Case e e1 e2 : A.
 Proof.
-  intros He He1 He2 θ δ Hctx. simpl.
+  intros [Hecl He] [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+  intros θ δ Hctx. simpl.
   simp type_interp.
   specialize (He _ _ Hctx). simp type_interp in He.
   destruct He as (v & Hb & Hv).
@@ -680,23 +711,11 @@ Lemma sem_soundness Δ Γ e A :
   TY Δ; Γ ⊢ e : A →
   TY Δ; Γ ⊨ e : A.
 Proof.
-  induction 1 as [ | Δ Γ x e A B Hsyn IH | Δ Γ e A B Hsyn IH| Δ Γ e A Hsyn IH| | | | |  | | | | n Γ e1 e2 op A B C Hop ? ? ? ? | | | | | | | ].
+  induction 1 as [ | | | | | | | |  | | | | n Γ e1 e2 op A B C Hop ? ? ? ? | | | | | | | ].
   - by apply compat_var.
-  - set (X := elements (dom (<[x := A]>Γ))).
-    specialize (syn_typed_closed _ _ _ _ X Hsyn) as Hcl.
-    eapply compat_lam_named; last done.
-    + apply Hcl. apply elem_of_elements.
-    + intros ??. by apply elem_of_elements.
-  - set (X := elements (dom Γ)).
-    specialize (syn_typed_closed _ _ _ _ X Hsyn) as Hcl.
-    eapply compat_lam_anon; last done.
-    + apply Hcl. apply elem_of_elements.
-    + intros ??. by apply elem_of_elements.
-  - set (X := elements (dom Γ)).
-    specialize (syn_typed_closed _ _ _ _ X Hsyn) as Hcl.
-    eapply compat_tlam; last done.
-    + apply Hcl. rewrite dom_fmap. apply elem_of_elements.
-    + intros ??. by apply elem_of_elements.
+  - by apply compat_lam.
+  - by apply compat_lam_anon.
+  - by apply compat_tlam.
   - apply compat_tapp; done.
   - eapply compat_pack; done.
   - eapply compat_unpack; done.
@@ -725,7 +744,7 @@ Lemma termination e A :
   (TY 0; ∅ ⊢ e : A)%ty →
   ∃ v, big_step e v.
 Proof.
-  intros Hsem%sem_soundness.
+  intros [Hsemcl Hsem]%sem_soundness.
   specialize (Hsem ∅ δ_any).
   simp type_interp in Hsem.
   rewrite subst_map_empty in Hsem.

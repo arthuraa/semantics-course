@@ -23,27 +23,31 @@ Section derived.
     (P -∗ Q) -∗
     |==> Q.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma upd_mono P Q :
     (P ⊢ Q) →
     (|==> P) ⊢ |==> Q.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma upd_trans P :
     (|==> |==> P) ⊢ |==> P.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma upd_frame P Q :
     P -∗ (|==> Q) -∗ |==> (P ∗ Q).
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End derived.
 
 (** ** The mono nat ghost theory *)
@@ -72,8 +76,9 @@ Section mono_derived.
     n ≤ m →
     mono γ n -∗ |==> mono γ m.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma mono_nat_increase_wp γ n m e Φ :
     n ≤ m →
@@ -88,8 +93,9 @@ Section mono_derived.
   Lemma mono_nat_new_wp e Φ n :
     (∀ γ, mono γ n -∗ WP e {{ Φ }}) -∗ WP e {{ Φ }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End mono_derived.
 
 (** ** Updates in the IPM *)
@@ -215,8 +221,9 @@ Section logrel_oneshot.
   Lemma code_safe :
     TY 0; ∅ ⊨ code : ((TUnit → TUnit) → TUnit).
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
 End logrel_oneshot.
 
@@ -246,8 +253,9 @@ Section logrel_ag.
   Lemma rec_code_safe :
     TY 0 ; ∅ ⊨ rec_code : (((TUnit → TInt) → TBool) → TInt).
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End logrel_ag.
 
 (** Exercise: Red/blue *)
@@ -279,6 +287,7 @@ Section logrel_redblue.
   Lemma mkColourGen_safe :
     TY 0; ∅ ⊨ mkColourGen : (∃: ∃: ((TUnit → #0) × (TUnit → #1)) × (#0 → #1 → TUnit)).
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End logrel_redblue.

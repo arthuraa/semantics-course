@@ -69,21 +69,19 @@ Definition list_t (A : type) : type :=
 
 Definition mystack : val :=
   (* define your stack implementation, assuming "lc" is a list implementation *)
-  λ: "lc",
-  #0 (* FIXME *).
+  λ: "lc", #0. (* FIXME *)
+  
 
 Definition make_mystack : val :=
   Λ, λ: "lc",
     unpack "lc" as "lc" in
-    #0 (* FIXME *).
+    #0. (* FIXME *)
 
 Lemma make_mystack_typed Σ n Γ :
   TY Σ; n; Γ ⊢ make_mystack : (∀: list_t #0 → stack_t #0).
 Proof.
   repeat solve_typing_fast.
-  (* FIXME *)
 Admitted.
-(*Qed.*)
 
 
 (** Exercise 2 (LN Exercise 46): Obfuscated code *)
@@ -112,46 +110,18 @@ Lemma obf_expr_eval :
   ∃ h', rtc contextual_step (obf_expr, ∅) (of_val #0 (* FIXME: what is the result? *), h').
 Proof.
   eexists. unfold obf_expr.
-  (*FIXME *)
+  (* TODO: exercise *)
 Admitted.
-(*Qed.*)
 
-(** Exercise 3 (LN Exercise 47): Diverging term *)
-
-Definition diverge : val :=
-  #0. (* FIXME *)
-Lemma diverge_typed Σ n Γ :
-  TY Σ; n; Γ ⊢ diverge : (Int → Int).
-Proof.
-  repeat solve_typing_fast.
-  (* FIXME *)
-Admitted.
-(*Qed.*)
 
 
 (** Exercise 4 (LN Exercise 48): Fibonacci *)
-Definition fibonacci : val :=
-  #0 (* FIXME *)
-.
+
+
+Definition fibonacci : val := #0. (* FIXME *)
+  
 Lemma fibonacci_typed Σ n Γ :
   TY Σ; n; Γ ⊢ fibonacci : (Int → Int).
 Proof.
   repeat solve_typing_fast.
-  (*FIXME *)
 Admitted.
-(*Qed.*)
-
-
-(** Exercise 5 (LN Exercise 49): Counter with Reset *)
-
-Definition make_counter : val :=
-  #0 (* FIXME *)
-.
-
-Lemma make_counter_typed Σ n Γ :
-  TY Σ; n; Γ ⊢ make_counter : (Unit → (Unit → Int) × (Unit → Unit)).
-Proof.
-  repeat solve_typing_fast.
-  (* FIXME *)
-Admitted.
-(*Qed.*)

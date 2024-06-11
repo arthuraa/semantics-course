@@ -7,8 +7,8 @@ From semantics.pl.program_logic Require Import notation.
 
 (** ** Magic is in the air *)
 Import hoare.
-(*Check ent_wand_intro.*)
-(*Check ent_wand_elim.*)
+Check ent_wand_intro.
+Check ent_wand_elim.
 
 Section primitive.
 Implicit Types (P Q R: iProp).
@@ -22,27 +22,32 @@ Proof.
   - apply ent_wand_intro. apply ent_or_intror.
 Qed.
 
+(** Exercise 1 *)
+
 Lemma ent_carry_res P Q :
   P ⊢ Q -∗ P ∗ Q.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 Lemma ent_comm_premise P Q R :
   (Q -∗ P -∗ R) ⊢ P -∗ Q -∗ R.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_sep_or_disj2 P Q R :
   (P ∨ R) ∗ (Q ∨ R) ⊢ (P ∗ Q) ∨ R.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 End primitive.
 
 (** ** Using the IPM *)
@@ -243,53 +248,61 @@ Abort.
 Section without_ipm.
   (** Prove the following entailments without using the IPM. *)
 
+  (** Exercise 2 *)
+
   Lemma ent_lem1 P Q :
     True ⊢ P -∗ Q -∗ P ∗ Q.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma ent_lem2 P Q :
     P ∗ (P -∗ Q) ⊢ Q.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma ent_lem3 P Q R :
     (P ∨ Q) ⊢ R -∗ (P ∗ R) ∨ (Q ∗ R).
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End without_ipm.
 
 Lemma ent_lem1_ipm P Q :
   True ⊢ P -∗ Q -∗ P ∗ Q.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_lem2_ipm P Q :
   P ∗ (P -∗ Q) ⊢ Q.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma ent_lem3_ipm P Q R :
   (P ∨ Q) ⊢ R -∗ (P ∗ R) ∨ (Q ∗ R).
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 (** Weakest precondition rules *)
 
-(*Check ent_wp_value.*)
-(*Check ent_wp_wand.*)
-(*Check ent_wp_bind.*)
-(*Check ent_wp_pure_step.*)
-(*Check ent_wp_new.*)
-(*Check ent_wp_load.*)
-(*Check ent_wp_store.*)
+Check ent_wp_value.
+Check ent_wp_wand.
+Check ent_wp_bind.
+Check ent_wp_pure_step.
+Check ent_wp_new.
+Check ent_wp_load.
+Check ent_wp_store.
 
 Lemma ent_wp_pure_steps e e' Φ :
   rtc pure_step e e' →
@@ -300,38 +313,49 @@ Proof.
   iApply ent_wp_pure_step; first done. by iApply "IH".
 Qed.
 
-(*Print hoare.*)
+Print hoare.
+
+(** Exercise 3 *)
 
 (** We can re-derive the Hoare rules from the weakest pre rules. *)
 Lemma hoare_frame' P R Φ e :
   {{ P }} e {{ Φ }} →
   {{ P ∗ R }} e {{ v, Φ v ∗ R }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
+
+(** Exercise 4 *)
 
 Lemma hoare_load l v :
   {{ l ↦ v }} !#l {{ w, ⌜w = v⌝ ∗ l ↦ v }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_store l (v w : val) :
   {{ l ↦ v }} #l <- w {{ _, l ↦ w }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma hoare_new (v : val) :
   {{ True }} ref v {{ w, ∃ l : loc, ⌜w = #l⌝ ∗ l ↦ v }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
 
+
+
+
+(** Exercise 5 *)
 
 (** Linked lists using the IPM *)
 Fixpoint is_ll (xs : list val) (v : val) : iProp :=
@@ -393,267 +417,40 @@ Qed.
 Lemma new_ll_correct :
   {{ True }} new_ll #() {{ v, is_ll [] v }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma cons_ll_correct (v x : val) xs :
   {{ is_ll xs v }} cons_ll x v {{ u, is_ll (x :: xs) u }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma head_ll_correct (v x : val) xs :
   {{ is_ll (x :: xs) v }} head_ll v {{ w, ⌜w = x⌝ }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma tail_ll_correct v x xs :
   {{ is_ll (x :: xs) v }} tail_ll v {{ w, is_ll xs w }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma len_ll_correct v xs :
   {{ is_ll xs v }} len_ll v {{ w, ⌜w = #(length xs)⌝ ∗ is_ll xs v }}.
 Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
+(* don't use the IPM *)
+  (* TODO: exercise *)
 Admitted.
 
 
-(** ** Persistency *)
-(*Check ent_pers_dup.*)
-(*Check ent_pers_elim.*)
-(*Check ent_pers_mono.*)
-(*Check ent_pers_pure.*)
-(*Check ent_pers_and_sep.*)
-(*Check ent_pers_idemp.*)
-(*Check ent_pers_all.*)
-(*Check ent_pers_exists.*)
-
-Lemma ent_pers_dup' P :
-  □ P ⊢ (□ P) ∗ (□ P).
-Proof.
-  (* don't use the IPM *) 
-  (* FIXME: exercise *)
-Admitted.
-
-
-(** Hoare triples, internalized *)
-Definition hoare (P : iProp) (e : expr) (Φ : val → iProp) : iProp :=
-  □ (P -∗ WP e {{ Φ }}).
-
-Global Notation "{{ P } } e {{ Φ } }" := (hoare P%I e%E Φ%I)
-  (at level 20, P, e, Φ at level 200,
-  format "{{  P  } }  e  {{  Φ  } }") : stdpp_scope.
-
-Global Notation "{{ P } } e {{ v , Q } }" := (hoare P%I e%E (λ v, Q)%I)
-  (at level 20, P, e, Q at level 200,
-  format "{{  P  } }  e  {{  v ,  Q  } }") : stdpp_scope.
-
-(** Example: *)
-Lemma double_int f :
-  {{ True }} f #() {{ v, ∃ z : Z, ⌜v = #z⌝ }} ⊢ {{ True }} f #() + f #() {{ v, ∃ z : Z, ⌜v = #z⌝ }}.
-Proof.
-  iIntros "#Hf !> _".
-  Restart.
-  (* alternative: *)
-  iIntros "#Hf". iModIntro. iIntros "_".
-Abort.
-
-(** We can rederive the previous rules for external Hoare triples. *)
-Section hoare_external.
-  Definition hoare_ext (P : iProp) (e : expr) (Φ : val → iProp) : Prop :=
-    True ⊢ {{ P }} e {{ Φ }}.
-
-  Notation "{{ P } } e {{ Φ } '}e'" := (hoare_ext P%I e%E Φ%I)
-    (at level 20, P, e, Φ at level 200,
-    format "{{  P  } }  e  {{  Φ  } }e") : stdpp_scope.
-
-  Notation "{{ P } } e {{ v , Q } '}e'" := (hoare_ext P%I e%E (λ v, Q)%I)
-    (at level 20, P, e, Q at level 200,
-    format "{{  P  } }  e  {{  v ,  Q  } }e") : stdpp_scope.
-
-  Lemma hoare_ext_value v Φ:
-    {{ Φ v }} v {{ Φ }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_con P Q Φ Ψ e:
-    (P ⊢ Q) →
-    (∀ v, Ψ v ⊢ Φ v) →
-    {{ Q }} e {{ Ψ }}e →
-    {{ P }} e {{ Φ }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_bind K P Φ Ψ e:
-    {{ P }} e {{ Ψ }}e →
-    (∀ v, {{ Ψ v }} fill K (Val v) {{ Φ }}e) →
-    {{ P }} (fill K e) {{ Φ }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_pure P φ Φ e:
-    (P ⊢ ⌜φ⌝) →
-    (φ → {{ P }} e {{ Φ }}e) →
-    {{ P }} e {{ Φ }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_exist_pre {X} (Φ : X → _) Ψ e :
-    (∀ x : X, {{ Φ x }} e {{ Ψ }}e) →
-    {{ ∃ x : X, Φ x }} e {{ Ψ }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_pure_step P Ψ e1 e2 :
-    pure_step e1 e2 →
-    {{ P }} e2 {{ Ψ }}e →
-    {{ P }} e1 {{ Ψ }}e.
-  Proof.
-      (* FIXME: exercise *)
-    Admitted.
-
-  Lemma hoare_ext_new v :
-    {{ True }} ref (Val v) {{ w, ∃ l : loc, ⌜w = #l⌝ ∗ l ↦ v }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_load l v:
-    {{ l ↦ v }} ! #l {{ w, ⌜w = v⌝ ∗ l ↦ v }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_store l (v w: val):
-    {{ l ↦ v }} #l <- w {{ _, l ↦ w }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-
-  Lemma hoare_ext_frame P F Φ e:
-    {{ P }} e {{ Φ }}e →
-    {{ P ∗ F }} e {{ v, Φ v ∗ F }}e.
-  Proof.
-    (* FIXME: exercise *)
-  Admitted.
-End hoare_external.
-
-(** ** Invariants *)
-(*Check ent_inv_pers.*)
-(*Check ent_inv_alloc.*)
-
-(* The following rule is more comvenient to use *)
-(*Check inv_alloc.*)
-
-(** We require a sidecondition here, namely that [F] is "timeless". All propositions we have seen up to now are in fact timeless.
-  We will see propositions that do not satisfy this requirement and which need a stronger rule for invariants soon.
-*)
-(*Check ent_inv_open.*)
-(*Check inv_open.*)
-
-
-(** MyMutBit *)
-Definition MyMutBit : expr :=
-  let: "x" := ref #0 in
-  (λ: "y", "x" <- #1 - !"x",
-   λ: "y", #0 < !"x").
-
-Definition MutBit v : iProp :=
-  {{ True }} (Fst v) #() {{ w, ⌜w = #()⌝ }} ∗
-  {{ True }} (Snd v) #() {{ w, ⌜w = #true⌝ ∨ ⌜w = #false⌝}}.
-
-Definition mutbitN := nroot .@ "mutbit".
-Lemma MyMutBit_proof :
-  ⊢ {{ True }} MyMutBit {{ v, MutBit v }}.
-Proof.
-  iIntros "!> _". unfold MyMutBit. wp_alloc l as "Hl". wp_pures.
-  iApply (inv_alloc mutbitN (l ↦ #0 ∨ l ↦ #1) with "[Hl]").
-  { eauto with iFrame. }
-  iIntros "#HInv".
-  iApply wp_value. unfold MutBit. iSplit.
-  - iIntros "!>_". wp_pures.
-    iApply (inv_open with "HInv"); first set_solver.
-    iIntros "[Hl | Hl]".
-    + wp_load. wp_store. iApply wp_value. eauto with iFrame.
-    + wp_load. wp_store. iApply wp_value. eauto with iFrame.
-  - iIntros "!> _". wp_pures.
-    iApply (inv_open with "HInv"); first set_solver.
-    iIntros "[Hl | Hl]".
-    + wp_load. wp_pures. iApply wp_value. eauto with iFrame.
-    + wp_load. wp_pures. iApply wp_value. eauto with iFrame.
-Qed.
-
-(** Exercise: Abstract integers *)
-Notation "'assert' e" := (if: e%E then #() else #0 #0)%E (at level 40) : expr_scope.
-Definition MyInt : expr :=
-  λ: "z",
-  let: "x" := ref (if: #0 < "z" then (#0, "z") else (-"z", #0)) in
-  ((λ: "y", let: "xv" := !"x" in assert (#0 ≤ Fst "xv");; assert (#0 ≤ Snd "xv");; Snd "xv" - Fst "xv"),
-   (λ: "y", let: "xv" := !"x" in "x" <- (Snd "xv", Fst "xv"))).
-
-Definition FlipInt v : iProp :=
-  {{ True }} (Fst v) #() {{ w, ∃ z : Z, ⌜w = #z⌝ }} ∗
-  {{ True }} (Snd v) #() {{ w, ⌜w = #()⌝ }}.
-
-Definition flipintN := nroot .@ "flipint".
-Lemma MyInt_proof (z : Z) :
-  ⊢ {{ True }} MyInt #z {{ v, FlipInt v }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
-
-(** Exercise: Magic Wands for Accessors *)
-Definition lookup_ll : val :=
-  rec: "lookup" "l" "i" :=
-    match: "l" with
-      NONE => NONE
-    | SOME "l" =>
-        if: "i" = #0 then SOME "l"
-        else
-          let: "lv" := !"l" in
-          "lookup" (Snd "lv") ("i" - #1)
-    end.
-
-(**
-  The lookup [!!!] is stdpp's [lookup_total] that, in contrast to [lookup],
-  does not return an [option], but rather a default value.
-  (It computes well using Coq's reduction tactics.)
- *)
-Lemma lookup_ll_correct xs lv (n : nat) :
-  ⊢ {{ is_ll xs lv ∗ ⌜n < length xs⌝ }}
-      lookup_ll lv #n
-    {{ v, ∃ (l : loc) next, ⌜v = SOMEV #l⌝ ∗ l ↦ (xs !!! n, next) ∗ (∀ w', l ↦ (w', next) -∗ is_ll (<[n := w']> xs) lv) }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
-
-(* A derived version that does not wrap the result in an option value.
-  (thus, at the language level, no case analysis on whether the value actually exists is possible)
-*)
-Definition lookup_ll_unsafe : val :=
-  λ: "l" "i",
-    match: lookup_ll "l" "i" with
-      SOME "l" => "l"
-    | NONE => NONE
-    end.
-Lemma lookup_ll_unsafe_correct xs lv (n : nat) :
-  ⊢ {{ is_ll xs lv ∗ ⌜n < length xs⌝ }}
-      lookup_ll_unsafe lv #n
-    {{ v, ∃ (l : loc) next, ⌜v = #l⌝ ∗ l ↦ (xs !!! n, next) ∗ (∀ w', l ↦ (w', next) -∗ is_ll (<[n := w']> xs) lv) }}.
-Proof.
-  (* derive this from [lookup_ll_correct] *)
-  (* FIXME: exercise *)
-Admitted.

@@ -12,7 +12,7 @@ Proof.
   { apply (sem_expr_rel_of_val _ _ _ (LamV x e)). lia. }
   intros _. simp type_interp.
   eexists _, _; split_and!; [done | done | ].
-  intros v' kd Hlt _. assert (kd = 0) as -> by lia.
+  intros v' k Hlt _. assert (k = 0) as -> by lia.
   (* NOTE: this crucially uses that the expression relation at zero is trivial *)
   apply sem_expr_rel_zero_trivial.
 Qed.
@@ -30,14 +30,19 @@ Lemma Z_safe n (Γ : typing_context) (A B : type) :
   TY n; (<["f" := (A → B)%ty]> (<["x" := A]> Γ)) ⊨ e : B →
   TY n; Γ ⊨ Z : (A → B).
 Proof.
-  intros ?? Hcl He θ δ k Hctx.
+  intros ?? Hcl He.
+  split.
+  { simpl. repeat split_and; try naive_solver.
+    all: eapply is_closed_weaken; [eassumption|set_solver]. }
+
+  intros θ δ k Hctx.
   simpl.
   rewrite lookup_delete_ne; last done. rewrite !lookup_delete.
   rewrite delete_idemp.
   rewrite (delete_commute _ "x" "f").
   rewrite delete_idemp.
   set (θ' := (delete (M := gmap.gmap _ _) "f" (delete "x" (M := gmap.gmap _ _) θ))).
-  specialize (sem_context_rel_dom_eq _ _ _ _ Hctx) as Hdom.
+  specialize (sem_context_rel_dom _ _ _ _ Hctx) as Hdom.
   assert (is_closed ["x"; "f"; "f"; "x"] (subst_map θ' e)).
   { (* boring, ignore this *)
     apply is_closed_subst_map.
@@ -45,7 +50,6 @@ Proof.
       eapply (subst_is_closed_subseteq _ _ θ); last by eapply sem_context_rel_closed.
       subst θ'. etrans; eapply delete_subseteq.
     - eapply is_closed_weaken; first done.
-      apply sem_context_rel_subset in Hctx.
       simplify_list_subseteq.
       subst θ'.
       apply stdpp.sets.elem_of_subseteq.
@@ -104,7 +108,7 @@ Proof.
   apply (sem_context_rel_insert _ _ _ _ (LamV _ _)).
   { eapply sem_expr_rel_lambda_val; first by simplify_closed.
     destruct k.
-    { simpl. replace (k'') with 0 by lia. apply sem_expr_rel_zero_trivial. }
+    { simpl. replace k'' with 0 by lia. apply sem_expr_rel_zero_trivial. }
     eapply IH. lia.
     eapply sem_context_rel_mono; last done. lia.
   }
@@ -124,7 +128,12 @@ Lemma Z_safe' (A B : type) (s : val) :
   TY 0; ∅ ⊨ s : ((A → B) → A → B) →
   TY 0; ∅ ⊨ (Fix s) : (A → B).
 Proof.
-  intros Hcl HF θ δ k Hctx.
+  intros Hcl HF.
+  split.
+  { simpl. split_and; last done.
+    eapply is_closed_weaken; [eassumption|set_solver]. }
+
+  intros θ δ k Hctx.
   simpl.
   rewrite !lookup_delete.
   rewrite (delete_commute _ "x" "y").
@@ -139,7 +148,7 @@ Proof.
   apply (sem_val_expr_rel _ _ _ (LamV _ _)).
 
   simp type_interp. eexists _, _. split_and!; [done |simplify_closed | ].
-  intros v' k' Hk'' Hv'. simpl.
+  intros v' k' Hk' Hv'. simpl.
   eapply semantic_app; first last.
   { apply sem_val_expr_rel. done. }
   simpl. rewrite subst_is_closed_nil; last done.
@@ -166,8 +175,7 @@ Proof.
   simp type_interp in Hv2.
   destruct Hv2 as (x & e & -> & ? & Hv2).
   eapply expr_det_steps_closure. { do_det_step. econstructor. }
-  eapply (Hv2 (LamV _ _)).
-  { lia. }
+  eapply (Hv2 (LamV _ _)); first lia.
 
   simp type_interp. eexists _, _. split_and!; [done |simplify_closed | ].
   intros v' k'4 Hk'4 Hv'. simpl.
@@ -185,7 +193,7 @@ Proof.
     eapply val_rel_mono; last done. lia.
   }
   destruct k0 as [ | k0]; last (eapply IH; lia).
-  replace k'4 with 0 by lia.
+  simpl. replace k'4 with 0 by lia.
   eapply sem_expr_rel_zero_trivial.
 Qed.
 

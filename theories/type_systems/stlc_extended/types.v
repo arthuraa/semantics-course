@@ -1,7 +1,7 @@
 From stdpp Require Import base relations.
 From iris Require Import prelude.
 From semantics.lib Require Import maps.
-From semantics.ts.stlc_extended Require Import lang notation.
+From semantics.ts.stlc_extended Require Import lang notation ctxstep.
 
 (** ** Syntactic typing *)
 Inductive type : Type :=
@@ -28,11 +28,6 @@ Notation "(+)" := Sum (only parsing) : FType_scope.
 
 Reserved Notation "Γ ⊢ e : A" (at level 74, e, A at next level).
 
-Inductive bin_op_typed : bin_op → type → type → type → Prop :=
-  (* FIXME: add the typing rules for binary operators here *)
-.
-#[export] Hint Constructors bin_op_typed : core.
-
 Inductive syn_typed : typing_context → expr → type → Prop :=
   | typed_var Γ x A :
       Γ !! x = Some A →
@@ -43,12 +38,16 @@ Inductive syn_typed : typing_context → expr → type → Prop :=
   | typed_lam_anon Γ e A B :
       Γ ⊢ e : B →
       Γ ⊢ (Lam BAnon e) : (A → B)
-  | typed_int Γ z : Γ ⊢ (Lit $ LitInt z) : Int
+  | typed_int Γ z : Γ ⊢ (LitInt z) : Int
   | typed_app Γ e1 e2 A B :
       Γ ⊢ e1 : (A → B) →
       Γ ⊢ e2 : A →
       Γ ⊢ (e1 e2)%E : B
-  (* FIXME: provide the new typing rules *)
+  | typed_add Γ e1 e2 :
+      Γ ⊢ e1 : Int →
+      Γ ⊢ e2 : Int →
+      Γ ⊢ e1 + e2 : Int
+  (* TODO: provide the new typing rules *)
 where "Γ ⊢ e : A" := (syn_typed Γ e%E A%ty).
 #[export] Hint Constructors syn_typed : core.
 
@@ -61,8 +60,8 @@ Lemma syn_typed_closed Γ e A X :
   (∀ x, x ∈ dom Γ → x ∈ X) →
   is_closed X e.
 Proof.
-  (* FIXME: you will need to add the new cases to the intro pattern *)
-  induction 1 as [ | ?????? IH | | | ] in X |-*; simpl; intros Hx; try done.
+  (* TODO: you will need to add the new cases, i.e. "|"'s to the intro pattern. The proof then should go through *)
+  induction 1 as [ | ?????? IH | | | | ] in X |-*; simpl; intros Hx; try done.
   { (* var *) apply bool_decide_pack, Hx. apply elem_of_dom; eauto. }
   { (* lam *) apply IH.
     intros y. rewrite elem_of_dom lookup_insert_is_Some.
@@ -82,8 +81,8 @@ Lemma typed_weakening Γ Δ e A:
   Γ ⊆ Δ →
   Δ ⊢ e : A.
 Proof.
-  (* FIXME: you will need to add the new cases to the intro pattern *)
-  induction 1 as [| Γ x e A B Htyp IH | | | ] in Δ |-*; intros Hsub; eauto.
+  (* TODO: here you will need to add the new cases to the intro pattern as well. The proof then should go through *)
+  induction 1 as [| Γ x e A B Htyp IH | | | | ] in Δ |-*; intros Hsub; eauto.
   - (* var *) econstructor. by eapply lookup_weaken.
   - (* lam *) econstructor. eapply IH; eauto. by eapply insert_mono.
 Qed.
@@ -107,17 +106,22 @@ Lemma app_inversion Γ e1 e2 B:
   ∃ A, Γ ⊢ e1 : (A → B) ∧ Γ ⊢ e2 : A.
 Proof. inversion 1; subst; eauto. Qed.
 
-(* FIXME: add inversion lemmas for the new typing rules.
+Lemma plus_inversion Γ e1 e2 B:
+  Γ ⊢ e1 + e2 : B →
+  B = Int ∧ Γ ⊢ e1 : Int ∧ Γ ⊢ e2 : Int.
+Proof. inversion 1; subst; eauto. Qed.
+
+(* TODO: add inversion lemmas for the new typing rules.
   They will be very useful for the proofs below!
 *)
+
 
 Lemma typed_substitutivity e e' Γ (x: string) A B :
   ∅ ⊢ e' : A →
   (<[x := A]> Γ) ⊢ e : B →
   Γ ⊢ lang.subst x e' e : B.
 Proof.
-  intros He'. revert B Γ; induction e as [| y | y | | | | | |  | | ]; intros B Γ; simpl.
-  - inversion 1; subst; auto.
+  intros He'. revert B Γ; induction e as [y | y | | | | | | |  | | ]; intros B Γ; simpl.
   - intros Hp % var_inversion.
     destruct (decide (x = y)).
     + subst. rewrite lookup_insert in Hp. injection Hp as ->.
@@ -134,14 +138,14 @@ Proof.
     + injection Heq as [= ->]. by rewrite insert_insert in Hty.
     + rewrite insert_commute in Hty; last naive_solver. eauto.
   - intros (C & Hty1 & Hty2) % app_inversion. eauto.
-  - (* FIXME *) admit.
-  - (* FIXME *) admit.
-  - (* FIXME *) admit.
-  - (* FIXME *) admit.
-  - (* FIXME *) admit.
-  - (* FIXME *) admit.
-  - (* FIXME *) admit.
-(*Qed.*)
+  - inversion 1; subst; auto.
+  - intros (-> & Hty1 & Hty2)%plus_inversion; eauto.
+  - (* TODO *) admit.
+  - (* TODO *) admit.
+  - (* TODO *) admit.
+  - (* TODO *) admit.
+  - (* TODO *) admit.
+  - (* TODO *) admit.
 Admitted.
 
 (** Canonical values *)
@@ -161,15 +165,15 @@ Proof.
   inversion 1; simpl; naive_solver.
 Qed.
 
-(* FIXME: add canonical forms lemmas for the new types *)
+(* TODO: add canonical forms lemmas for the new types *)
 
 (** Progress *)
 Lemma typed_progress e A:
   ∅ ⊢ e : A → is_val e ∨ reducible e.
 Proof.
   remember ∅ as Γ.
-  (* FIXME: you will need to extend the intro pattern *)
-  induction 1 as [| | | | Γ e1 e2 A B Hty IH1 _ IH2 ].
+  (* TODO: you will need to extend the intro pattern *)
+  induction 1 as [| | | | Γ e1 e2 A B Hty IH1 _ IH2 | Γ e1 e2 Hty1 IH1 Hty2 IH2].
   - subst. naive_solver.
   - left. done.
   - left. done.
@@ -183,8 +187,15 @@ Proof.
       eexists. eauto.
     + right. destruct H2 as [e2' H2].
       eexists. eauto.
-  (* FIXME: prove the new cases *)
-(*Qed.*)
+  - (* plus *)
+    destruct (IH2 HeqΓ) as [H2|H2]; [destruct (IH1 HeqΓ) as [H1|H1]|].
+    + right. eapply canonical_values_int in Hty1 as [n1 ->]; last done.
+      eapply canonical_values_int in Hty2 as [n2 ->]; last done.
+      subst. eexists; eapply base_contextual_step. eauto.
+    + right. destruct H1 as [e1' Hstep]. eexists. eauto.
+    + right. destruct H2 as [e2' H2]. eexists. eauto.
+
+(* FIXME: prove the new cases *)
 Admitted.
 
 Definition ectx_typing (K: ectx) (A B: type) :=
@@ -219,8 +230,9 @@ Proof.
     eapply lam_inversion in H1 as (C & D & Heq & Hty).
     injection Heq as -> ->.
     eapply typed_substitutivity; eauto.
-  (* FIXME: extend this for the new cases *)
-(*Qed.*)
+  - eapply plus_inversion in Hty as (-> & Hty1 & Hty2). constructor.
+
+(* TODO: extend this for the new cases *)
 Admitted.
 
 Lemma typed_preservation e e' A:

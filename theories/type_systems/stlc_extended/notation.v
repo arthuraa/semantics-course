@@ -4,7 +4,6 @@ Set Default Proof Using "Type".
 
 (** Coercions to make programs easier to type. *)
 Coercion of_val : val >-> expr.
-Coercion LitInt : Z >-> base_lit.
 Coercion App : expr >-> Funclass.
 Coercion Var : string >-> expr.
 
@@ -15,8 +14,8 @@ Notation Match e0 x1 e1 x2 e2 := (Case e0 (Lam x1 e1) (Lam x2 e2)) (only parsing
 
 (* No scope for the values, does not conflict and scope is often not inferred
 properly. *)
-Notation "# l" := (LitV l%Z%V%stdpp) (at level 8, format "# l").
-Notation "# l" := (Lit l%Z%E%stdpp) (at level 8, format "# l") : expr_scope.
+Notation "# l" := (LitIntV l%Z%V%stdpp) (at level 8, format "# l").
+Notation "# l" := (LitInt l%Z%E%stdpp) (at level 8, format "# l") : expr_scope.
 
 (** Syntax inspired by Coq/Ocaml. Constructions with higher precedence come
     first. *)
@@ -31,9 +30,7 @@ Notation "'match:' e0 'with' 'InjR' x1 => e1 | 'InjL' x2 => e2 'end'" :=
   (Match e0 x2%binder e2 x1%binder e1)
   (e0, x1, e1, x2, e2 at level 200, only parsing) : expr_scope.
 
-Notation "e1 + e2" := (BinOp PlusOp e1%E e2%E) : expr_scope.
-Notation "e1 - e2" := (BinOp MinusOp e1%E e2%E) : expr_scope.
-Notation "e1 * e2" := (BinOp MultOp e1%E e2%E) : expr_scope.
+Notation "e1 + e2" := (Plus e1%E e2%E) : expr_scope.
 
 (*Notation "~ e" := (UnOp NegOp e%E) (at level 75, right associativity) : expr_scope.*)
 

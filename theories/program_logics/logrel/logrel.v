@@ -1,3 +1,4 @@
+
 From iris.proofmode Require Import tactics.
 From iris.heap_lang Require Import lang notation.
 From iris.heap_lang Require Import metatheory.
@@ -488,41 +489,41 @@ Lemma compat_pair Δ Γ e1 e2 A B :
   TY Δ; Γ ⊨ e2 : B →
   TY Δ; Γ ⊨ (e1, e2) : A × B.
 Proof.
-  (* FIXME exercise *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_fst Δ Γ e A B :
   TY Δ; Γ ⊨ e : A × B →
   TY Δ; Γ ⊨ Fst e : A.
 Proof.
-  (* FIXME exercise *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_snd Δ Γ e A B :
   TY Δ; Γ ⊨ e : A × B →
   TY Δ; Γ ⊨ Snd e : B.
 Proof.
-  (* FIXME exercise *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_injl Δ Γ e A B :
   TY Δ; Γ ⊨ e : A →
   TY Δ; Γ ⊨ InjL e : A + B.
 Proof.
-  (* FIXME exercise *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_injr Δ Γ e A B :
   TY Δ; Γ ⊨ e : B →
   TY Δ; Γ ⊨ InjR e : A + B.
 Proof.
-  (* FIXME exercise *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_case Δ Γ e e1 e2 A B C :
   TY Δ; Γ ⊨ e : B + C →
@@ -530,9 +531,9 @@ Lemma compat_case Δ Γ e e1 e2 A B C :
   TY Δ; Γ ⊨ e2 : (C → A) →
   TY Δ; Γ ⊨ Case e e1 e2 : A.
 Proof.
-  (* FIXME exercise *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_roll Δ Γ e A :
   TY Δ; Γ ⊨ e : (A.[(μ: A)%ty/]) →

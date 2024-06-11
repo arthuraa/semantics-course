@@ -613,10 +613,10 @@ Proof.
       eexists. eapply base_contextual_step. eapply TBetaS.
     + destruct H1 as [e' H1]. eexists. eauto.
   - (* pack *)
-    (* FIXME this will be an exercise for you soon :) *)
+    (* TODO this will be an exercise for you soon :) *)
     admit.
   - (* unpack *)
-    (* FIXME this will be an exercise for you soon :) *)
+    (* TODO this will be an exercise for you soon :) *)
     admit.
   - (* int *)left. done.
   - (* bool*) left. done.
@@ -804,7 +804,7 @@ Proof.
     eapply type_lam_inversion in Hty as (A & Heq & Hty).
     injection Heq as ->. by eapply typed_subst_type_closed.
   - (* unpack *)
-    (* FIXME: this will be an exercise for you soon :) *)
+    (* TODO: this will be an exercise for you soon :) *)
     admit.
   - (* unop *)
     eapply unop_inversion in Hty as (A1 & Hop & Hty).

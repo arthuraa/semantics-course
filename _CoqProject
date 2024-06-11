@@ -1,5 +1,5 @@
 -Q theories/lib semantics.lib
--Q theories/program_logics  semantics.pl
+-Q theories/program_logics semantics.pl
 -Q theories/type_systems semantics.ts
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 -arg -w -arg -notation-overridden
@@ -28,9 +28,9 @@ theories/type_systems/stlc_extended/lang.v
 theories/type_systems/stlc_extended/notation.v
 theories/type_systems/stlc_extended/types.v
 theories/type_systems/stlc_extended/bigstep.v
+theories/type_systems/stlc_extended/ctxstep.v
 theories/type_systems/stlc_extended/parallel_subst.v
 theories/type_systems/stlc_extended/logrel.v
-
 
 
 # System F
@@ -45,7 +45,7 @@ theories/type_systems/systemf/logrel.v
 theories/type_systems/systemf/free_theorems.v
 theories/type_systems/systemf/binary_logrel.v
 theories/type_systems/systemf/existential_invariants.v
-
+theories/type_systems/systemf/church_encodings_faithful.v
 
 # SystemF-Mu
 theories/type_systems/systemf_mu/lang.v
@@ -88,6 +88,8 @@ theories/program_logics/heap_lang/primitive_laws_nolater.v
 theories/program_logics/hoare_lib.v
 theories/program_logics/hoare.v
 theories/program_logics/ipm.v
+theories/program_logics/ipm_persistency.v
+theories/program_logics/later_playground.v
 theories/program_logics/later_loeb.v
 
 theories/program_logics/invariant_lib.v
@@ -103,7 +105,8 @@ theories/program_logics/logrel/ghost_state.v
 
 # resources
 theories/program_logics/ra_lib.v
-theories/program_logics/resource_algebras.v
+theories/program_logics/resource_algebras_1.v
+#theories/program_logics/resource_algebras_2.v
 
 theories/program_logics/fupd.v
 
@@ -126,3 +129,16 @@ theories/program_logics/concurrent_logrel/syntactic.v
 theories/program_logics/concurrent_logrel/logrel.v
 theories/program_logics/concurrent_logrel/adequacy.v
 
+
+# By removing the # below, you can add the exercise sheets to make
+# <comment-out>
+theories/type_systems/warmup/warmup.v
+theories/type_systems/stlc/exercises01.v
+theories/type_systems/stlc/exercises02.v
+theories/type_systems/stlc/cbn_logrel.v
+theories/type_systems/systemf/exercises03.v
+theories/type_systems/systemf/exercises04.v
+theories/type_systems/systemf/exercises05.v
+theories/type_systems/systemf_mu/exercises06.v
+theories/type_systems/systemf_mu_state/exercises07.v
+# </comment-out>

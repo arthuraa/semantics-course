@@ -178,3 +178,51 @@ Proof.
               end.
   all: naive_solver.
 Qed.
+
+Lemma subst_map_closed' X Y Θ e:
+  is_closed Y e →
+  (∀ x, x ∈ Y → if Θ !! x is (Some e') then closed X e' else x ∈ X) →
+  is_closed X (subst_map Θ e).
+Proof.
+  induction e in X, Θ, Y |-*; simpl.
+  2: { 
+    intros Hel%bool_decide_unpack Hcl.
+    eapply Hcl in Hel.
+    destruct (Θ !! x); first done.
+    simpl. by eapply bool_decide_pack. }
+  2: { 
+    intros Hcl Hcl'. destruct x as [|x]; simpl; first naive_solver. 
+    eapply IHe; first done.
+    intros y [|]%elem_of_cons.
+    + subst. rewrite lookup_delete. set_solver.
+    + destruct (decide (x = y)); first by subst; rewrite lookup_delete; set_solver.
+      rewrite lookup_delete_ne //=. eapply Hcl' in H.
+      destruct lookup; last set_solver.
+      eapply is_closed_weaken; eauto with set_solver. }
+  9: {
+    intros [Hcl1 Hcl2]%andb_True H.
+    apply andb_True. split; first eauto.
+    destruct x as [|x]; simpl; first naive_solver.
+    eapply IHe2; first done.
+    intros y [|H0]%elem_of_cons.
+    + subst. rewrite lookup_delete. set_solver.
+    + destruct (decide (x = y)); first by subst; rewrite lookup_delete; set_solver.
+      rewrite lookup_delete_ne //=. eapply H in H0.
+      destruct lookup; last set_solver.
+      eapply is_closed_weaken; eauto with set_solver.
+  }
+  all: try naive_solver.
+Qed.
+
+Lemma subst_map_closed X θ e:
+  is_closed (X ++ (elements (dom θ))) e ->
+  subst_is_closed X θ ->
+  is_closed X (subst_map θ e).
+Proof.
+  intros Hcl Hsubst.
+  eapply subst_map_closed'; first eassumption.
+  intros x Hx.
+  destruct (θ !! x) as [e'|] eqn:Heq.
+  - eauto.
+  - by eapply elem_of_app in Hx as [H|H%elem_of_elements%not_elem_of_dom].
+Qed.

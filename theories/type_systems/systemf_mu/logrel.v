@@ -20,7 +20,7 @@ Implicit Types
    a proof of closedness, and a proof of downwards-closure wrt step-indices. *)
 Record sem_type := mk_ST {
   sem_type_car :> nat → val → Prop;
-  sem_type_closed_val k v : sem_type_car k v → is_closed [] (of_val v);
+  sem_type_closed_val k v : sem_type_car k v → is_closed [] v;
   sem_type_mono : ∀ k k' v, sem_type_car k v → k' ≤ k → sem_type_car k' v
   }.
 
@@ -72,15 +72,17 @@ Definition type_lt := ltof type type_size.
 #[local] Instance type_lt_wf : WellFounded type_lt.
 Proof. apply well_founded_ltof. Qed.
 
-Inductive type_case : Set :=
-  | expr_case | val_case.
-Definition type_case_size (c : type_case) : nat :=
-  match c with | expr_case => 1 | val_case => 0 end.
-Definition type_case_lt := ltof type_case type_case_size.
-#[local] Instance type_case_lt_wf : WellFounded type_case_lt.
+Inductive val_or_expr : Type :=
+| inj_val : val → val_or_expr
+| inj_expr : expr → val_or_expr.
+
+Definition val_or_expr_size (ve : val_or_expr) : nat :=
+  match ve with | inj_val _ => 0 | inj_expr _ => 1 end.
+Definition val_or_expr_lt := ltof val_or_expr val_or_expr_size.
+#[local] Instance val_or_expr_lt_wf : WellFounded val_or_expr_lt.
 Proof. apply well_founded_ltof. Qed.
 
-Definition term_rel := Subterm.lexprod nat (type * type_case) lt (Subterm.lexprod type type_case type_lt type_case_lt).
+Definition term_rel := Subterm.lexprod nat (type * val_or_expr) lt (Subterm.lexprod type val_or_expr type_lt val_or_expr_lt).
 #[local] Instance term_rel_wf : WellFounded term_rel. apply _. Qed.
 
 (** *** The logical relation *)
@@ -88,44 +90,42 @@ Definition term_rel := Subterm.lexprod nat (type * type_case) lt (Subterm.lexpro
   fundamentally requires decreasing the step-index, we also need to convince Equations that this definition is well-formed!
    We do this by providing a well-founded termination relation [term_rel] that decreases for each recursive call.
  *)
-Equations type_interp (c : type_case) (t : type) δ (k : nat) (v : match c with val_case => val | expr_case => expr end) : Prop
-  by wf (k, (t, c)) term_rel := {
+Equations type_interp (ve : val_or_expr) (t : type) δ (k : nat) : Prop
+  by wf (k, (t, ve)) term_rel := {
 
-  type_interp val_case Int δ k v =>
+  type_interp (inj_val v) Int δ k =>
     ∃ z : Z, v = #z ;
-  type_interp val_case Bool δ k v =>
+  type_interp (inj_val v) Bool δ k =>
     ∃ b : bool, v = #b ;
-  type_interp val_case Unit δ k v =>
+  type_interp (inj_val v) Unit δ k =>
     v = #LitUnit ;
-  type_interp val_case (A × B) δ k v =>
-    ∃ v1 v2 : val, v = (v1, v2)%V ∧ type_interp val_case A δ k v1 ∧ type_interp val_case B δ k v2;
-  type_interp val_case (A + B) δ k v =>
-    (∃ v' : val, v = InjLV v' ∧ type_interp val_case A δ k v') ∨
-    (∃ v' : val, v = InjRV v' ∧ type_interp val_case B δ k v');
+  type_interp (inj_val v) (A × B) δ k =>
+    ∃ v1 v2 : val, v = (v1, v2)%V ∧ type_interp (inj_val v1) A δ k ∧ type_interp (inj_val v2) B δ k;
+  type_interp (inj_val v) (A + B) δ k =>
+    (∃ v' : val, v = InjLV v' ∧ type_interp (inj_val v') A δ k) ∨
+    (∃ v' : val, v = InjRV v' ∧ type_interp (inj_val v') B δ k);
 
-  type_interp val_case (A → B) δ k v =>
+  type_interp (inj_val v) (A → B) δ k =>
     ∃ x e, v = LamV x e ∧ is_closed (x :b: nil) e ∧
       (* We write ∀ (H:k' ≤ k), .. instead of k' ≤ k → .. due to a longstanding Coq quirk, see
-         https://coq.zulipchat.com/#narrow/stream/237977-Coq-users/topic/.60Program.60.20and.20variable.20names/near/404824378 *)
+               https://coq.zulipchat.com/#narrow/stream/237977-Coq-users/topic/.60Program.60.20and.20variable.20names/near/404824378 *)
       ∀ v' k' (H:k' ≤ k),
-        type_interp val_case A δ k' v' →
-        type_interp expr_case B δ k' (subst' x (of_val v') e);
-  type_interp val_case (#α) δ k v =>
+        type_interp (inj_val v') A δ k' →
+        type_interp (inj_expr (subst' x (of_val v') e)) B δ k' ;
+  type_interp (inj_val v) (#α) δ k =>
     (δ α).(sem_type_car) k v;
-  type_interp val_case (∀: A) δ k v =>
+  type_interp (inj_val v) (∀: A) δ k =>
     ∃ e, v = TLamV e ∧ is_closed [] e ∧
-      ∀ τ, type_interp expr_case A (τ .: δ) k e;
-  type_interp val_case (∃: A) δ k v =>
+      ∀ τ, type_interp (inj_expr e) A (τ .: δ) k;
+  type_interp (inj_val v) (∃: A) δ k =>
     ∃ v', v = PackV v' ∧
-      ∃ τ : sem_type, type_interp val_case A (τ .: δ) k v';
+      ∃ τ : sem_type, type_interp (inj_val v') A (τ .: δ) k;
   (** Recursive type case *)
-  (** By requiring k' < k, we implicitly encode that k > 0
-   *)
-  type_interp val_case (μ: A) δ k v =>
-    ∃ v', v = (roll v')%V ∧ is_closed [] v' ∧ ∀ k' (H:k' < k), type_interp val_case (A.[μ: A/]%ty) δ k' v';
+  type_interp (inj_val v) (μ: A) δ k =>
+    ∃ v', v = (roll v')%V ∧ is_closed [] v' ∧ ∀ k' (H:k' < k), type_interp (inj_val v') (A.[μ: A/]%ty) δ k';
 
-  type_interp expr_case t δ k e =>
-    ∀ e' n, n < k → red_nsteps n e e' → ∃ v, to_val e' = Some v ∧ type_interp val_case t δ (k - n) v
+  type_interp (inj_expr e) t δ k =>
+    ∀ e' n, n < k → red_nsteps n e e' → ∃ v, to_val e' = Some v ∧ type_interp (inj_val v) t δ (k - n)
 }.
 
 (** Proving that the arguments are decreasing for recursive calls is a bit more messy now, but it's mostly systematic.
@@ -139,31 +139,31 @@ Ltac dsimpl :=
   | |- term_rel (?k1, _) (?k2, _) =>
       (* use [lia] to decide where to go *)
       destruct (decide (k1 < k2)) as [ ? | ?]; [left; lia | assert (k1 = k2) as -> by lia; right]
-  | |- Subterm.lexprod type type_case _ _ (?t, _) (?t, _) =>
+  | |- Subterm.lexprod type val_or_expr _ _ (?t, _) (?t, _) =>
       (* type is not decreasing, go right *)
       right
-  | |- Subterm.lexprod type type_case _ _ (_, ?a) (_, ?a) =>
+  | |- Subterm.lexprod type val_or_expr _ _ (_, ?a) (_, ?a) =>
       (* type case is not decreasing, go left *)
       left
   | |- term_rel (_, _) (_, _) =>
       (* branch non-deterministically and try to solve the remaining goal *)
       first [left; solve [dsimpl] | right; solve [dsimpl]]
-  | |- Subterm.lexprod type type_case  _ _ _ _ =>
+  | |- Subterm.lexprod type val_or_expr  _ _ _ _ =>
       (* branch non-deterministically *)
       first [left; solve [dsimpl] | right; solve [dsimpl]]
   | _ =>
-      (* try to solve a leaf, i.e. a [type_lt], [type_case_lt] or [lt] goal *)
-      unfold type_case_lt, type_lt, ltof; simp type_size; simpl; try lia
+      (* try to solve a leaf, i.e. a [type_lt], [val_or_expr_lt] or [lt] goal *)
+      unfold val_or_expr_lt, type_lt, ltof; simp type_size; simpl; try lia
   end.
 (** The tactic solves all of Equations' obligations for showing that the argument decreases. *)
 Solve Obligations with (intros; dsimpl).
 
 (** *** Value relation and expression relation *)
-Definition sem_val_rel A δ k v := type_interp val_case A δ k v.
-Definition sem_expr_rel A δ k e := type_interp expr_case A δ k e.
+Notation sem_val_rel A δ k v := (type_interp (inj_val v) A δ k).
+Notation sem_expr_rel A δ k e := (type_interp (inj_expr e) A δ k).
 
-Notation 𝒱 := (type_interp val_case).
-Notation ℰ := (type_interp expr_case).
+Notation 𝒱 A δ k v := (sem_val_rel A δ k v).
+Notation ℰ A δ k v := (sem_expr_rel A δ k v).
 
 Lemma val_rel_is_closed v δ k A:
   𝒱 A δ k v → is_closed [] (of_val v).
@@ -227,26 +227,26 @@ Qed.
     We can use the inductive hypothesis whenever either the type or the step-index decreases, or we switch from
     the expression case to the value case.
  *)
-Lemma type_interp_mono : ∀ '(k, (A, c)) δ k' x, k' ≤ k → type_interp c A δ k x → type_interp c A δ k' x.
+Lemma type_interp_mono : ∀ '(k, (A, ve)) δ k', k' ≤ k → type_interp ve A δ k → type_interp ve A δ k'.
 Proof.
   eapply (well_founded_ind (R := term_rel) term_rel_wf).
-  intros (k & A & []) IH δ k'.
+  intros (k & A & []) IH δ k'; first last.
   { (* expression rel *)
-    intros e Hk He. simp type_interp in He. simp type_interp. intros e' n Hn Hred.
+    intros Hk He. simp type_interp in He. simp type_interp. intros e' n Hn Hred.
     destruct (He e' n ltac:(lia) Hred) as (v & Hval & Hv).
     exists v. split; first done.
-    eapply (IH (k-n, (A, val_case))); [ | lia | done].
+    eapply (IH (k-n, (A, inj_val v))); [ | lia | done].
     (* show that the induction is decreasing *)
     dsimpl.
   }
-  intros v Hk Hv.
+  intros Hk Hv.
   destruct A as [x | | | | A | A | A B | A B | A B | A ]; simp type_interp; simp type_interp in Hv.
   - (* var case *)
     by eapply sem_type_mono.
   - (* universal case *)
     destruct Hv as (e & -> & ? & Hv).
     exists e. split_and!; [done.. | ]. intros τ.
-    eapply (IH (k, (A, expr_case))); [ dsimpl | done | done].
+    eapply (IH (k, (A, inj_expr e))); [ dsimpl | done | done].
   - (* existential case *)
     destruct Hv as (v' & -> & (τ & Hv)). exists v'. split; first done.
     exists τ. eapply (IH (k, (A, _))); [ dsimpl | done..].
@@ -270,14 +270,14 @@ Qed.
 
 (** We can now derive the two desired lemmas *)
 Lemma val_rel_mono A δ k k' v : k' ≤ k → 𝒱 A δ k v → 𝒱 A δ k' v.
-Proof. apply (type_interp_mono (k, (A, val_case))). Qed.
+Proof. apply (type_interp_mono (k, (A, inj_val v))). Qed.
 Lemma expr_rel_mono A δ k k' e : k' ≤ k → ℰ A δ k e → ℰ A δ k' e.
-Proof. apply (type_interp_mono (k, (A, expr_case))). Qed.
+Proof. apply (type_interp_mono (k, (A, inj_expr e))). Qed.
 
 
 (** Interpret a syntactic type *)
 Program Definition interp_type A δ : sem_type := {|
-  sem_type_car := 𝒱 A δ;
+  sem_type_car := fun k v => 𝒱 A δ k v;
 |}.
 Next Obligation. by eapply val_rel_is_closed. Qed.
 Next Obligation. by eapply val_rel_mono. Qed.
@@ -296,6 +296,14 @@ Inductive sem_context_rel (δ : tyvar_interp) (k : nat) : typing_context → (gm
 
 Notation 𝒢 := sem_context_rel.
 
+
+(** *** Semantic typing judgment *)
+Definition sem_typed Δ Γ e A :=
+  is_closed (elements (dom Γ)) e ∧
+  ∀ θ δ k, 𝒢 δ k Γ θ → ℰ A δ k (subst_map θ e).
+Notation "'TY' Δ ;  Γ ⊨ e : A" := (sem_typed Δ Γ e A) (at level 74, e, A at next level).
+
+
 Lemma sem_context_rel_vals {δ k Γ θ x A} :
   sem_context_rel δ k Γ θ →
   Γ !! x = Some A →
@@ -311,12 +319,12 @@ Proof.
       split; first done. done.
 Qed.
 
-Lemma sem_context_rel_subset δ k Γ θ :
-  𝒢 δ k Γ θ → dom Γ ⊆ dom θ.
+Lemma sem_context_rel_dom δ k Γ θ :
+  𝒢 δ k Γ θ → dom Γ = dom θ.
 Proof.
-  intros Hctx. apply elem_of_subseteq. intros x (A & Hlook)%elem_of_dom.
-  eapply sem_context_rel_vals in Hlook as (e & v & Hlook & Heq & Hval); last done.
-  eapply elem_of_dom; eauto.
+  induction 1.
+  - by rewrite !dom_empty.
+  - rewrite !dom_insert. congruence.
 Qed.
 
 Lemma sem_context_rel_dom_eq δ k Γ θ :
@@ -346,11 +354,6 @@ Proof.
   - apply IH.
 Qed.
 
-(** *** Semantic typing judgment *)
-Definition sem_typed Δ Γ e A :=
-  ∀ θ δ k, 𝒢 δ k Γ θ → ℰ A δ k (subst_map θ e).
-Notation "'TY' Δ ;  Γ ⊨ e : A" := (sem_typed Δ Γ e A) (at level 74, e, A at next level).
-
 Section boring_lemmas.
   (** The lemmas in this section are all quite boring and expected statements,
     but are quite technical to prove due to De Bruijn binders.
@@ -358,21 +361,21 @@ Section boring_lemmas.
   *)
 
   Lemma type_interp_ext  :
-    ∀ '(k, (B, c)), ∀ δ δ' x,
+    ∀ '(k, (B, ve)), ∀ δ δ',
     (∀ n k v, δ n k v ↔ δ' n k v) →
-    type_interp c B δ k x ↔ type_interp c B δ' k x.
+    type_interp ve B δ k ↔ type_interp ve B δ' k.
   Proof.
     eapply (well_founded_ind (R := term_rel) term_rel_wf).
-    intros (k & A & []) IH δ δ'.
+    intros (k & A & [v|e]) IH δ δ'; first last.
     { (* expression rel *)
-      intros e Hd. simp type_interp. eapply forall_proper; intros e'.
+      intros Hd. simp type_interp. eapply forall_proper; intros e'.
       eapply forall_proper; intros n. eapply if_iff; first done.
       eapply if_iff; first done. f_equiv. intros v. f_equiv.
-      eapply (IH ((k - n), (A, val_case))); last done.
+      eapply (IH ((k - n), (A, inj_val v))); last done.
       (* show that the induction is decreasing *)
       dsimpl.
     }
-    intros v Hd. destruct A as [x | | | | A | A | A B | A B | A B | A ]; simp type_interp; eauto.
+    intros Hd. destruct A as [x | | | | A | A | A B | A B | A B | A ]; simp type_interp; eauto.
     - f_equiv; intros e. f_equiv. f_equiv.
       eapply forall_proper; intros τ.
       eapply (IH (_, (_, _))); first dsimpl.
@@ -388,7 +391,7 @@ Section boring_lemmas.
     - f_equiv. intros ?. f_equiv. intros ?.
       f_equiv. f_equiv; by eapply (IH (_, (_, _))); first dsimpl.
     - f_equiv; f_equiv; intros ?; f_equiv; by eapply (IH (_, (_, _))); first dsimpl.
-    - f_equiv; intros ?. f_equiv. f_equiv.
+   - f_equiv; intros ?. f_equiv. f_equiv.
       eapply forall_proper; intros ?.
       eapply forall_proper; intros ?.
       by eapply (IH (_, (_, _))); first dsimpl.
@@ -396,19 +399,19 @@ Section boring_lemmas.
 
 
   Lemma type_interp_move_ren :
-    ∀ '(k, (B, c)), ∀ δ σ x, type_interp c B (λ n, δ (σ n)) k x ↔ type_interp c (rename σ B) δ k x.
+    ∀ '(k, (B, ve)), ∀ δ σ, type_interp ve B (λ n, δ (σ n)) k ↔ type_interp ve (rename σ B) δ k.
   Proof.
     eapply (well_founded_ind (R := term_rel) term_rel_wf).
-    intros (k & A & []) IH δ σ.
+    intros (k & A & [v|e]) IH δ σ; first last.
     { (* expression rel *)
-      intros e. simp type_interp. eapply forall_proper; intros e'.
+      simp type_interp. eapply forall_proper; intros e'.
       eapply forall_proper; intros n. eapply if_iff; first done.
       eapply if_iff; first done. f_equiv. intros v. f_equiv.
       eapply (IH (_, (_, _))).
       (* show that the induction is decreasing *)
       dsimpl.
     }
-    intros v. destruct A as [x | | | | A | A | A B | A B | A B | A ]; simpl; simp type_interp; eauto.
+    destruct A as [x | | | | A | A | A B | A B | A B | A ]; simpl; simp type_interp; eauto.
     - f_equiv; intros e. f_equiv. f_equiv.
       eapply forall_proper; intros τ.
       etransitivity; last eapply (IH (_, (_, _))); last dsimpl.
@@ -436,19 +439,19 @@ Section boring_lemmas.
 
 
   Lemma type_interp_move_subst  :
-    ∀ '(k, (B, c)), ∀ δ σ x, type_interp c B (λ n, interp_type (σ n) δ) k x ↔ type_interp c (B.[σ]) δ k x.
+    ∀ '(k, (B, ve)), ∀ δ σ, type_interp ve B (λ n, interp_type (σ n) δ) k ↔ type_interp ve (B.[σ]) δ k.
   Proof.
     eapply (well_founded_ind (R := term_rel) term_rel_wf).
-    intros (k & A & []) IH δ σ.
+    intros (k & A & [v|e]) IH δ σ; first last.
     { (* expression rel *)
-      intros e. simp type_interp. eapply forall_proper; intros e'.
+      simp type_interp. eapply forall_proper; intros e'.
       eapply forall_proper; intros n. eapply if_iff; first done.
       eapply if_iff; first done. f_equiv. intros v. f_equiv.
       eapply (IH (_, (_, _))).
       (* show that the induction is decreasing *)
       dsimpl.
     }
-    intros v. destruct A as [x | | | | A | A | A B | A B | A B | A ]; simpl; simp type_interp; eauto.
+    destruct A as [x | | | | A | A | A B | A B | A B | A ]; simpl; simp type_interp; eauto.
     - f_equiv; intros e. f_equiv. f_equiv.
       eapply forall_proper; intros τ.
       etransitivity; last eapply (IH (_, (_, _))); last dsimpl.
@@ -569,6 +572,7 @@ Qed.
 
 Lemma compat_int Δ Γ z : TY Δ; Γ ⊨ (Lit $ LitInt z) : Int.
 Proof.
+  split; first done. 
   intros θ δ k _.
   eapply (sem_val_expr_rel _ _ _ #z).
   simp type_interp. eauto.
@@ -576,22 +580,25 @@ Qed.
 
 Lemma compat_bool Δ Γ b : TY Δ; Γ ⊨ (Lit $ LitBool b) : Bool.
 Proof.
+  split; first done. 
   intros θ δ k _.
   eapply (sem_val_expr_rel _ _ _ #b). simp type_interp. eauto.
 Qed.
 
 Lemma compat_unit Δ Γ : TY Δ; Γ ⊨ (Lit $ LitUnit) : Unit.
 Proof.
+  split; first done. 
   intros θ δ k _.
-  eapply (sem_val_expr_rel _ _ _ #LitUnit).
-  simp type_interp. eauto.
+  eapply (sem_val_expr_rel _ _ _ #LitUnit). simp type_interp. eauto.
 Qed.
 
 Lemma compat_var Δ Γ x A :
   Γ !! x = Some A →
   TY Δ; Γ ⊨ (Var x) : A.
 Proof.
-  intros Hx θ δ k Hctx; simpl.
+  intros Hx. split.
+  { eapply bool_decide_pack, elem_of_elements, elem_of_dom_2, Hx. }
+  intros θ δ k Hctx; simpl.
   specialize (sem_context_rel_vals Hctx Hx) as (e & v & He & Heq & Hv).
   rewrite He. simp type_interp.
   rewrite -(of_to_val _ _ Heq).
@@ -605,7 +612,9 @@ Lemma compat_app Δ Γ e1 e2 A B :
   TY Δ; Γ ⊨ e2 : A →
   TY Δ; Γ ⊨ (e1 e2) : B.
 Proof.
-  intros Hfun Harg θ δ k Hctx; simpl.
+  intros [Hfuncl Hfun] [Hargcl Harg]. split.
+  { simpl. eauto. }
+  intros θ δ k Hctx; simpl.
   specialize (Hfun _ _ _ Hctx).
   specialize (Harg _ _ _ Hctx).
 
@@ -627,7 +636,7 @@ Qed.
 Lemma is_closed_subst_map_delete X Γ (x: string) θ A e:
   closed X e →
   subst_is_closed [] θ →
-  dom Γ ⊆ dom θ →
+  dom Γ = dom θ →
   (∀ y : string, y ∈ X → y ∈ dom (<[x:=A]> Γ)) →
   is_closed (x :b: []) (subst_map (delete x θ) e).
 Proof.
@@ -640,25 +649,25 @@ Proof.
     destruct (decide (x = y)) as [<- | Hneq]; first done.
     rewrite lookup_delete_ne in Hn; last done.
     rewrite lookup_insert_ne in Hy; last done.
-    move: Hdom1. rewrite elem_of_subseteq.
     move : Hn Hy. rewrite -elem_of_dom -not_elem_of_dom.
-    naive_solver.
+    rewrite Hdom1. done.
 Qed.
 
 (** Lambdas need to be closed by the context *)
-Lemma compat_lam_named Δ Γ x e A B X :
-  closed X e →
-  (∀ y, y ∈ X → y ∈ dom (<[x := A]> Γ)) →
+Lemma compat_lam_named Δ Γ x e A B :
   TY Δ; (<[ x := A ]> Γ) ⊨ e : B →
   TY Δ; Γ ⊨ (Lam (BNamed x) e) : (A → B).
 Proof.
-  intros Hcl Hsub Hbody θ δ k Hctxt. simpl.
+  intros [Hbodycl Hbody]. split.
+  { simpl. eapply is_closed_weaken; first eassumption. set_solver. }
+  intros θ δ k Hctxt. simpl.
   eapply (sem_val_expr_rel _ _ _ (LamV x _)).
   simp type_interp.
   eexists (BNamed x), _. split_and!; [done| | ].
   { eapply is_closed_subst_map_delete; eauto.
     + eapply sem_context_rel_closed in Hctxt. naive_solver.
-    + eapply sem_context_rel_subset in Hctxt; naive_solver.
+    + by eapply sem_context_rel_dom.
+    + apply elem_of_elements.
   }
 
   intros v' k' Hk' Hv'.
@@ -673,7 +682,7 @@ Qed.
 Lemma is_closed_subst_map_anon X Γ θ e:
   closed X e →
   subst_is_closed [] θ →
-  dom Γ ⊆ dom θ →
+  dom Γ = dom θ →
   (∀ y, y ∈ X → y ∈ dom Γ) →
   is_closed [] (subst_map θ e).
 Proof.
@@ -682,24 +691,23 @@ Proof.
   - eapply subst_is_closed_subseteq; done.
   - intros y Hy%Hdom2 Hn.
     apply not_elem_of_dom in Hn. apply elem_of_dom in Hy.
-    move: Hdom1. rewrite elem_of_subseteq.
     move : Hn Hy. rewrite -elem_of_dom -not_elem_of_dom.
-    naive_solver.
+    rewrite Hdom1. done.
 Qed.
 
-Lemma compat_lam_anon Δ Γ e A B X :
-  closed X e →
-  (∀ y, y ∈ X → y ∈ dom Γ) →
+Lemma compat_lam_anon Δ Γ e A B :
   TY Δ; Γ ⊨ e : B →
   TY Δ; Γ ⊨ (Lam BAnon e) : (A → B).
 Proof.
-  intros Hcl Hsub Hbody θ δ k Hctxt. simpl.
+  intros [Hbodycl Hbody]. split; first done.
+  intros θ δ k Hctxt. simpl.
   eapply (sem_val_expr_rel _ _ _ (LamV BAnon _)).
   simp type_interp.
   eexists BAnon, _. split_and!; [done| | ].
   { eapply is_closed_subst_map_anon; eauto.
     + eapply sem_context_rel_closed in Hctxt. naive_solver.
-    + eapply sem_context_rel_subset in Hctxt; naive_solver.
+    + by eapply sem_context_rel_dom.
+    + apply elem_of_elements.
   }
 
   intros v' k' Hk' Hv'.
@@ -713,7 +721,10 @@ Lemma compat_int_binop Δ Γ op e1 e2 :
   TY Δ; Γ ⊨ e2 : Int →
   TY Δ; Γ ⊨ (BinOp op e1 e2) : Int.
 Proof.
-  intros Hop He1 He2 θ δ k Hctx. simpl.
+  intros Hop [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He1 _ _ _ Hctx).
   specialize (He2 _ _ _ Hctx).
 
@@ -741,7 +752,10 @@ Lemma compat_int_bool_binop Δ Γ op e1 e2 :
   TY Δ; Γ ⊨ e2 : Int →
   TY Δ; Γ ⊨ (BinOp op e1 e2) : Bool.
 Proof.
-  intros Hop He1 He2 θ δ k Hctx. simpl.
+  intros Hop [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He1 _ _ _ Hctx).
   specialize (He2 _ _ _ Hctx).
 
@@ -768,7 +782,10 @@ Lemma compat_unop Δ Γ op A B e :
   TY Δ; Γ ⊨ e : A →
   TY Δ; Γ ⊨ (UnOp op e) : B.
 Proof.
-  intros Hop He θ δ k Hctx. simpl.
+  intros Hop [Hecl He].
+  split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He _ _ _ Hctx).
 
   eapply (bind [UnOpCtx _]); first done.
@@ -783,13 +800,14 @@ Proof.
   all: simp type_interp; eauto.
 Qed.
 
-Lemma compat_tlam Δ Γ e A X :
-  closed X e →
-  (∀ y, y ∈ X → y ∈ dom Γ) →
+Lemma compat_tlam Δ Γ e A :
   TY S Δ; (⤉ Γ) ⊨ e : A →
   TY Δ; Γ ⊨ (Λ, e) : (∀: A).
 Proof.
-  intros Hcl Hsub He θ δ k Hctx. simpl.
+  intros [Hecl He]. split.
+  { simpl. by erewrite <-dom_fmap. }
+
+  intros θ δ k Hctx. simpl.
   simp type_interp.
   intros e' n Hn Hred. eapply nsteps_val_inv' in Hred as [ -> ->]; last done.
   eexists; split; first done.
@@ -797,7 +815,8 @@ Proof.
   eexists _. split_and!; [ done | | ].
   { eapply is_closed_subst_map_anon; eauto.
     + eapply sem_context_rel_closed in Hctx; naive_solver.
-    + eapply sem_context_rel_subset in Hctx; naive_solver.
+    + by eapply sem_context_rel_dom.
+    + rewrite dom_fmap. apply elem_of_elements.
   }
 
   intros τ. eapply He.
@@ -809,8 +828,10 @@ Lemma compat_tapp Δ Γ e A B :
   TY Δ; Γ ⊨ e : (∀: A) →
   TY Δ; Γ ⊨ (e <>) : (A.[B/]).
 Proof.
-  intros Hwf He θ δ k Hctx. simpl.
+  intros Hwf [Hecl He].
+  split; first naive_solver.
 
+  intros θ δ k Hctx. simpl.
   specialize (He _ _ _ Hctx).
   eapply (bind [TAppCtx]); first done.
   intros j v Hj Hv.
@@ -832,7 +853,10 @@ Lemma compat_pack Δ Γ e n A B :
   TY n; Γ ⊨ e : A.[B/] →
   TY n; Γ ⊨ (pack e) : (∃: A).
 Proof.
-  intros Hwf Hwf' He θ δ k Hctx. simpl.
+  intros Hwf1 Hwf2 [Hecl He].
+  split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
 
   specialize (He _ _ _ Hctx).
   eapply (bind [PackCtx]); first done.
@@ -849,7 +873,9 @@ Lemma compat_unpack n Γ A B e e' x :
   TY S n; <[x:=A]> (⤉Γ) ⊨ e' : B.[ren (+1)] →
   TY n; Γ ⊨ (unpack e as BNamed x in e') : B.
 Proof.
-  intros Hwf He He' θ δ k Hctx. simpl.
+  intros Hwf [Hecl He] [He'cl He']. split.
+  { simpl. apply andb_True. split; first done. eapply is_closed_weaken; first eassumption. set_solver. }
+  intros θ δ k Hctx. simpl.
 
   specialize (He _ _ _ Hctx).
   eapply (bind [UnpackCtx _ _]); first done.
@@ -876,7 +902,10 @@ Lemma compat_if n Γ e0 e1 e2 A :
   TY n; Γ ⊨ e2 : A →
   TY n; Γ ⊨ (if: e0 then e1 else e2) : A.
 Proof.
-  intros He0 He1 He2 θ δ k Hctx. simpl.
+  intros [He0cl He0] [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He0 _ _ _ Hctx).
   specialize (He1 _ _ _ Hctx).
   specialize (He2 _ _ _ Hctx).
@@ -900,7 +929,10 @@ Lemma compat_pair Δ Γ e1 e2 A B :
   TY Δ; Γ ⊨ e2 : B →
   TY Δ; Γ ⊨ (e1, e2) : A × B.
 Proof.
-  intros He1 He2 θ δ k Hctx. simpl.
+  intros [He1cl He1] [He2cl He2].
+  split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He1 _ _ _ Hctx).
   specialize (He2 _ _ _ Hctx).
 
@@ -921,7 +953,9 @@ Lemma compat_fst Δ Γ e A B :
   TY Δ; Γ ⊨ e : A × B →
   TY Δ; Γ ⊨ Fst e : A.
 Proof.
-  intros He θ δ k Hctx.
+  intros [Hecl He]. split; first naive_solver.
+
+  intros θ δ k Hctx.
   specialize (He _ _ _ Hctx).
   simpl. eapply (bind [FstCtx]); first done.
   intros j v Hj Hv.
@@ -936,7 +970,9 @@ Lemma compat_snd Δ Γ e A B :
   TY Δ; Γ ⊨ e : A × B →
   TY Δ; Γ ⊨ Snd e : B.
 Proof.
-  intros He θ δ k Hctx.
+  intros [Hecl He]. split; first naive_solver.
+
+  intros θ δ k Hctx.
   specialize (He _ _ _ Hctx).
   simpl. eapply (bind [SndCtx]); first done.
   intros j v Hj Hv.
@@ -951,17 +987,17 @@ Lemma compat_injl Δ Γ e A B :
   TY Δ; Γ ⊨ e : A →
   TY Δ; Γ ⊨ InjL e : A + B.
 Proof.
-  (* FIXME: exercise for you *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_injr Δ Γ e A B :
   TY Δ; Γ ⊨ e : B →
   TY Δ; Γ ⊨ InjR e : A + B.
 Proof.
-  (* FIXME: exercise for you *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_case Δ Γ e e1 e2 A B C :
   TY Δ; Γ ⊨ e : B + C →
@@ -969,15 +1005,17 @@ Lemma compat_case Δ Γ e e1 e2 A B C :
   TY Δ; Γ ⊨ e2 : (C → A) →
   TY Δ; Γ ⊨ Case e e1 e2 : A.
 Proof.
-  (* FIXME: exercise for you *)
-(*Qed.*)
+  (* TODO: exercise *)
 Admitted.
+
 
 Lemma compat_roll n Γ e A :
   TY n; Γ ⊨ e : (A.[(μ: A)%ty/]) →
   TY n; Γ ⊨ (roll e) : (μ: A).
 Proof.
-  intros He θ δ k Hctx. simpl.
+  intros [Hecl He]. split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He _ _ _ Hctx).
 
   eapply (bind [RollCtx]); first done.
@@ -994,7 +1032,9 @@ Lemma compat_unroll n Γ e A :
   TY n; Γ ⊨ e : (μ: A) →
   TY n; Γ ⊨ (unroll e) : (A.[(μ: A)%ty/]).
 Proof.
-  intros He θ δ k Hctx. simpl.
+  intros [Hecl He]. split; first naive_solver.
+
+  intros θ δ k Hctx. simpl.
   specialize (He _ _ _ Hctx).
 
   eapply (bind [UnrollCtx]); first done.
@@ -1012,26 +1052,7 @@ Lemma sem_soundness Δ Γ e A :
   TY Δ; Γ ⊢ e : A →
   TY Δ; Γ ⊨ e : A.
 Proof.
-  induction 1 as [ | Δ Γ x e A B Hsyn IH | Δ Γ e A B Hsyn IH| Δ Γ e A Hsyn IH| | | | |  | | | | n Γ e1 e2 op A B C Hop ? ? ? ? | | | | | | | | | ]; eauto.
-  - (* lambda *)
-    set (X := elements (dom (<[x := A]>Γ))).
-    specialize (syn_typed_closed _ _ _ _ X Hsyn) as Hcl.
-    eapply compat_lam_named; last done.
-    + apply Hcl. apply elem_of_elements.
-    + intros ??. by apply elem_of_elements.
-  - (* lambda anon *)
-    set (X := elements (dom Γ)).
-    specialize (syn_typed_closed _ _ _ _ X Hsyn) as Hcl.
-    eapply compat_lam_anon; last done.
-    + apply Hcl. apply elem_of_elements.
-    + intros ??. by apply elem_of_elements.
-  - (* tlam *)
-    set (X := elements (dom Γ)).
-    specialize (syn_typed_closed _ _ _ _ X Hsyn) as Hcl.
-    eapply compat_tlam; last done.
-    + apply Hcl. rewrite dom_fmap. apply elem_of_elements.
-    + intros ??. by apply elem_of_elements.
-  - (* binop *) inversion Hop; subst; eauto.
+  induction 1 as [ | Δ Γ x e A B Hsyn IH | Δ Γ e A B Hsyn IH| Δ Γ e A Hsyn IH| | | | |  | | | | n Γ e1 e2 op A B C [] ? ? ? ? | | | | | | | | | ]; eauto.
 Qed.
 
 
@@ -1047,7 +1068,7 @@ Lemma type_safety e A :
   TY 0; ∅ ⊢ e : A →
   safe e.
 Proof.
-  intros He%sem_soundness e' n Hred.
+  intros [Hecl He]%sem_soundness e' n Hred.
   specialize (He ∅ δ_any (S n)). simp type_interp in He.
   rewrite subst_map_empty in He.
   edestruct (He ) as (v & Hv & _); [ | | eassumption | ].

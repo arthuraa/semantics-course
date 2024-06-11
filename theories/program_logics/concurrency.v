@@ -14,17 +14,17 @@ From iris.prelude Require Import options.
   You can ignore the κs (it relates to another feature, prophecy variables, that we are not going to get into in this course).
   (it corresponds to the notion of "base steps" →_b  in the lecture notes)
  *)
-(*Check prim_step.*)
+Check prim_step.
 (** [step] lifts this reduction to thread pools. *)
-(*Check step.*)
+Check step.
 
-(*Check ForkS.*)
+Check ForkS.
 (** In Iris's HeapLang, CAS is encoded in terms of another primitive: CmpXchg, namely, "compare and exchange".
   The difference to CAS is that it returns not only a Boolean flag (indicating success or failure), but rather
   a pair that also contains the old/current value.
 *)
-(*Print CAS.*)
-(*Check CmpXchgS.*)
+Print CAS.
+Check CmpXchgS.
 
 Global Notation "{{ P } } e {{ Φ } }" := (□(P%I -∗ WP e {{ Φ%I }}))%I
   (at level 20, P, e, Φ at level 200,
@@ -35,9 +35,9 @@ Global Notation "{{ P } } e {{ v , Q } }" := (□ (P%I -∗ WP e {{ v, Q%I }}))%
   format "{{  P  } }  e  {{  v ,  Q  } }") : stdpp_scope.
 
 (** Weakest Precondition Rules *)
-(*Check wp_cmpxchg_fail.*)
-(*Check wp_cmpxchg_suc.*)
-(*Check wp_fork.*)
+Check wp_cmpxchg_fail.
+Check wp_cmpxchg_suc.
+Check wp_fork.
 
 Definition assert (e : expr) : expr :=
   if: e then #() else #0 #0.
@@ -230,8 +230,9 @@ Section with_lock.
     (P -∗ WP c #() {{ v, P ∗ Φ v }}) -∗
     WP with_lock l c {{ Φ }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End with_lock.
 
 (** Exclusive Ghost Token *)
@@ -264,7 +265,7 @@ Section excl_spin_lock.
   Context `{heapGS Σ} `{lockG Σ}.
 
   Definition is_excl_lock (v : val) (γ : gname) (P : iProp Σ) : iProp Σ :=
-        is_lock v P (* TODO *)
+    is_lock v P (* TODO *)
   .
 
   Instance is_excl_lock_pers v γ  P : Persistent (is_excl_lock v γ P).
@@ -273,26 +274,30 @@ Section excl_spin_lock.
   Lemma newlock_spec' P :
     ⊢ {{ P }} newlock #() {{ v, ∃ γ, is_excl_lock v γ P }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma acquire_spec' v γ P :
     ⊢ {{ is_excl_lock v γ P }} acquire v {{ w, ⌜w = #()⌝ ∗ locked γ ∗ P }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma release_spec' v γ P :
     ⊢ {{ is_excl_lock v γ P ∗ locked γ ∗ P }} release v {{ w, True }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma really_exclusive v γ P :
     ⊢ {{ is_excl_lock v γ P ∗ locked γ }} assert (!v = #true) {{ _, True }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End excl_spin_lock.
 
 
@@ -318,8 +323,9 @@ Section para_comp.
     WP e2 #() {{ _, Q2 }} -∗
     WP comp e1 e2 {{ _, Q1 ∗ Q2 }}.
   Proof using Type*.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End para_comp.
 
 Definition inc_counter : val :=
@@ -352,8 +358,9 @@ Section counter.
   Lemma parallel_counter_spec :
     ⊢ {{ True }} parallel_counter {{ v, ⌜v = #2⌝ }}.
   Proof using Type*.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End counter.
 
 (** Exercise: Mutex *)
@@ -368,7 +375,8 @@ Section mutex.
   Notation "l '↦:' P" := (∃ v : val, l ↦ v ∗ P v)%I (at level 40) : stdpp_scope.
 
   Definition is_mutex (v : val) (P : val → iProp Σ) : iProp Σ :=
-         True 
+    
+    True
   .
   Instance is_mutex_pers v P : Persistent (is_mutex v P).
   Proof. apply _. Qed.
@@ -376,16 +384,18 @@ Section mutex.
   Lemma mkmutex_spec P (v : val) :
     ⊢ {{ P v }} mkmutex v {{ v, is_mutex v P }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma acquire_mutex_spec P (v : val) :
     ⊢ {{ is_mutex v P }}
         acquire_mutex v
       {{ w, ∃ (l : loc) (rl : val), ⌜w = (#l, rl)%V⌝ ∗ l ↦: P ∗ {{ l ↦: P }} rl #() {{ _, True }} }}.
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End mutex.
 
 (** Exercise: Channels *)
@@ -504,18 +514,21 @@ Section channel_spec.
   Lemma newchan_spec :
     ⊢ {{ True }} newchan #() {{ v, is_channel v }}.
   Proof using Type*.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma send_spec v d :
     ⊢ {{ is_channel v ∗ Pc d }} send v d {{ v, ⌜v = #()⌝ }}.
   Proof using Pers.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 
   Lemma receive_spec v :
     ⊢ {{ is_channel v }} receive v {{ d, Pc d }}.
   Proof using Pers.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End channel_spec.

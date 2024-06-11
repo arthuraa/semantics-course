@@ -22,6 +22,8 @@ Proof.
   destruct x; simpl; [done | by rewrite !delete_empty..].
 Qed.
 
+
+
 Lemma subst_map_closed X e xs :
   closed X e →
   (∀ x : string, x ∈ dom xs → x ∉ X) →
@@ -75,6 +77,13 @@ Lemma subst_closed_subseteq X map1 map2 :
   map1 ⊆ map2 → subst_closed X map2 → subst_closed X map1.
 Proof.
   intros Hsub Hclosed2 x e Hl. eapply Hclosed2, map_subseteq_spec; done.
+Qed.
+
+Lemma subst_closed_weaken X Y map1 map2 :
+  Y ⊆ X → map1 ⊆ map2 → subst_closed Y map2 → subst_closed X map1.
+Proof.
+  intros Hsub1 Hsub2 Hclosed2 x e Hl.
+  eapply closed_weaken. 1:eapply Hclosed2, map_subseteq_spec; done. done.
 Qed.
 
 (** Lemma about the interaction with "normal" substitution. *)
@@ -164,4 +173,17 @@ Proof.
   - rewrite !andb_True. intros [H1 H2] Hcl. split; eauto.
   - auto.
   - rewrite !andb_True. intros [H1 H2] Hcl. split; eauto.
+Qed.
+
+Lemma subst_map_closed'_2 X Θ e:
+  closed (X ++ (elements (dom Θ))) e ->
+  subst_closed X Θ ->
+  closed X (subst_map Θ e).
+Proof.
+  intros Hcl Hsubst.
+  eapply subst_map_closed'; first eassumption.
+  intros x Hx.
+  destruct (Θ !! x) as [e'|] eqn:Heq.
+  - eauto.
+  - by eapply elem_of_app in Hx as [H|H%elem_of_elements%not_elem_of_dom].
 Qed.

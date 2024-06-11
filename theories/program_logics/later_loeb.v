@@ -4,157 +4,73 @@ From iris.base_logic Require Import invariants.
 From semantics.pl.heap_lang Require Import adequacy proofmode primitive_laws_nolater.
 From semantics.pl Require Import hoare_lib.
 From semantics.pl.program_logic Require Import notation.
-From semantics.pl Require Import ipm.
+From semantics.pl Require Import ipm ipm_persistency.
 
 (** ** Step-indexing *)
-Import hoare ipm.
+Import hoare ipm_persistency.
 Implicit Types
   (P Q R: iProp)
   (Φ Ψ : val → iProp)
 .
 
-(*Check ent_later_intro.*)
-(*Check ent_later_mono.*)
-(*Check ent_löb.*)
-(*Check ent_later_sep.*)
-(*Check ent_later_exists.*)
-(*Check ent_later_all.*)
-(*Check ent_later_pers.*)
-
-(*Check ent_later_wp_pure_step.*)
-(*Check ent_later_wp_new.*)
-(*Check ent_later_wp_load.*)
-(*Check ent_later_wp_store.*)
-
-(* Exercise: Derive the old rules from the new ones. *)
-Lemma ent_wp_pure_step_old e e' Φ :
-  pure_step e e' →
-  WP e' {{ Φ }} ⊢ WP e {{ Φ }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
-Lemma ent_wp_new_old v Φ :
-  (∀ l, l ↦ v -∗ Φ #l) ⊢ WP ref v {{ Φ }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
-Lemma ent_wp_load_old l v Φ :
-  l ↦ v ∗ (l ↦ v -∗ Φ v) ⊢ WP !#l {{ Φ }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
-Lemma ent_wp_store_old l v w Φ :
-  l ↦ v ∗ (l ↦ w -∗ Φ #()) ⊢ WP #l <- w {{ Φ }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
-
-Lemma ent_later_and P Q :
-  ▷ (P ∧ Q) ⊣⊢ ▷ P ∧ ▷ Q.
-Proof.
-  specialize (ent_later_all (λ b : bool, if b then P else Q)). rewrite !ent_equiv.
-  intros [Ha Hb]. split.
-  - apply ent_and_intro.
-    + etrans; first etrans; [ | apply Ha | ].
-      * apply ent_later_mono. apply ent_all_intro. intros []; [apply ent_and_elim_l | apply ent_and_elim_r].
-      * etrans; first apply (ent_all_elim true). apply ent_later_mono. done.
-    + apply ent_later_mono. apply ent_and_elim_r.
-  - etrans; first etrans; [ | apply Hb | ].
-    + apply ent_all_intro. intros []; [apply ent_and_elim_l | apply ent_and_elim_r].
-    + apply ent_later_mono. apply ent_and_intro.
-      * apply (ent_all_elim true).
-      * apply (ent_all_elim false).
-Qed.
-
-Lemma ent_later_or P Q :
-  ▷ (P ∨ Q) ⊣⊢ ▷ P ∨ ▷ Q.
-Proof.
-  specialize (ent_later_exists (λ b : bool, if b then P else Q)). rewrite !ent_equiv.
-  intros [Ha Hb]. split.
-  - etrans; first etrans; [ | apply Ha | ].
-    + apply ent_later_mono. apply ent_or_elim.
-      * by apply (ent_exist_intro true).
-      * by apply (ent_exist_intro false).
-    + apply ent_exist_elim. intros []; [apply ent_or_introl | apply ent_or_intror].
-  - etrans; first etrans; [ | apply Hb | ].
-    + apply ent_or_elim.
-      * by apply (ent_exist_intro true).
-      * by apply (ent_exist_intro false).
-    + apply ent_later_mono. apply ent_exist_elim.
-      intros []; [apply ent_or_introl | apply ent_or_intror].
-Qed.
-
-Lemma ent_all_pers {X} (Φ : X → iProp) :
-  □ (∀ x : X, Φ x) ⊢ ∀ x : X, □ Φ x.
-Proof.
-  apply ent_all_intro. intros x. apply ent_pers_mono. apply ent_all_elim.
-Qed.
-
-Lemma ent_wp_rec' Φ (Ψ : val → val → iProp) e :
-  (⊢ ∀ v, {{ Φ v ∗ (∀ u, {{ Φ u }} (rec: "f" "x" := e) u {{ Ψ u }})}} subst "x" v (subst "f" (rec: "f" "x" := e) e) {{ Ψ v }}) →
-  (⊢ ∀ v, {{ Φ v }} (rec: "f" "x" := e) v {{ Ψ v }}).
-Proof.
-  intros Ha. apply ent_löb.
-  apply ent_all_intro. intros v.
-  etrans. { apply ent_later_mono. apply ent_pers_all. }
-  rewrite ent_later_pers. etrans; first apply ent_pers_idemp.
-  apply ent_pers_mono.
-  apply ent_wand_intro. etrans; last apply ent_wp_pure_steps.
-  2: { apply rtc_pure_step_fill with (K := [AppLCtx _]). apply pure_step_val. done. }
-  etrans; last apply ent_later_wp_pure_step.
-  2: { apply pure_step_beta. }
-  (* strip the later *)
-  etrans. { apply ent_sep_split; first done. apply ent_later_intro. }
-  rewrite -ent_later_pers. rewrite -ent_later_sep. apply ent_later_mono.
-  (* use the assumption / get it into the right shape to use the hypothesis *)
-  etrans.
-  { apply ent_sep_split; last done. apply ent_all_pers. }
-  rewrite ent_sep_comm. etrans; first apply ent_sep_true.
-  apply ent_wand_elim.
-  etrans; last apply ent_pers_elim.
-  etrans; first apply Ha.
-  apply (ent_all_elim v).
-Qed.
-
 (** Step-indexing in the IPM *)
-Lemma ipm_later_sep_commuting P Q :
-  ▷ (P ∗ Q) -∗ ▷ P ∗ ▷ Q.
-Proof.
-  (* automatically commutes the later around the separating conjunction *)
-  iIntros "(HP & HQ)".
-
-  Restart.
-  iIntros "($ & $)".
-Abort.
-
-Lemma ipm_later_exists_commuting (Φ : nat → iProp) :
-  ▷ (∃ n : nat, Φ n) -∗ ∃ n : nat, ▷ Φ n.
-Proof.
-  (* automatically commutes the later around the existential *)
-  (* note: in general, this relies on the type that is existentially quantified over
-    to be [Inhabited]. The IPM tactics will fail if an instance for that cannot be found. *)
-  iIntros "(%n & Hn)".
-Abort.
-
-Lemma ipm_later_or_commuting P Q :
-  ▷ (P ∨ Q) -∗ ▷ P ∨ ▷ Q.
-Proof.
-  (* automatically commutes the later around the or *)
-  iIntros "[ HP | HQ ]".
-
-  Restart.
-  iIntros "[ $ | $ ]".
-Abort.
 
 Lemma ipm_later_next_1 P Q R `{!Persistent P} :
   ▷ P -∗ ▷ R -∗ ▷ Q.
 Proof.
   iIntros "#HP HR".
-  (* this will strip the later from all the assumptions *)
+  (* this is the main tactic for working with laters. This will strip the later
+   * from all the assumptions *)
   iNext.
+  Undo.
+  (* we can also introduce the modality using an intro pattern: *)
+  iIntros "!>".
+  Restart.
+  iIntros "#HP HR !>".
 Abort.
 
-(** The recursion lemma from above, proved with the IPM and Löb induction *)
+Lemma ipm_later_sep_commuting P Q :
+  ▷ (P ∗ Q) ∗-∗ ▷ P ∗ ▷ Q.
+Proof.
+  iSplit.
+  - (* automatically commutes the later around the separating conjunction *)
+    iIntros "(HP & HQ)".
+
+    Undo.
+    iIntros "($ & $)".
+  - (* conversely, the same thing happens when splitting *)
+    iIntros "(HP & HQ)".
+    Undo.
+    (* framing is also able to commute laters *)
+    iIntros "($ & $)".
+Abort.
+
+Lemma ipm_later_exists_commuting (Φ : nat → iProp) :
+  ▷ (∃ n : nat, Φ n) ∗-∗ ∃ n : nat, ▷ Φ n.
+Proof.
+  iSplit.
+  - (* automatically commutes the later around the existential *)
+    (* note: in general, this relies on the type that is existentially quantified over
+      to be [Inhabited]. The IPM tactics will fail if an instance for that cannot be found. *)
+    iIntros "(%n & Hn)". admit.
+  - iIntros "(%n & Hn)". 
+    (* similarly, exists also automatically commutes. *)
+    iExists n. iApply "Hn".
+Abort.
+
+Lemma ipm_later_or_commuting P Q :
+  ▷ (P ∨ Q) ∗-∗ ▷ P ∨ ▷ Q.
+Proof.
+  iSplit.
+  - (* automatically commutes the later around the or *)
+    iIntros "[ HP | HQ ]". all: admit.
+  - iIntros "[ HP | HQ ]".
+    + iLeft. iFrame.
+    + iRight. iFrame.
+Abort.
+
+
+(** The recursion lemma from later_playground.v, proved with the IPM and Löb induction *)
 Lemma ent_wp_rec v Φ (Ψ : val → val → iProp) e :
   (∀ v, (Φ v ∗ (∀ u, {{ Φ u }} (rec: "f" "x" := e) u {{ Ψ u }}) ⊢ WP subst "x" v (subst "f" (rec: "f" "x" := e) e) {{ Ψ v }})) →
   (Φ v ⊢ WP (rec: "f" "x" := e) v {{ Ψ v }}).
@@ -177,8 +93,9 @@ Section Z.
     (∀ v, (Φ v ∗ (∀ u, {{ Φ u }} Z_com u {{ Ψ u }}) ⊢ WP subst "x" v (subst "f" Z_com e) {{ Ψ v }})) →
     (Φ v ⊢ WP Z_com v {{ Ψ v }}).
   Proof.
-    (* FIXME: exercise *)
+    (* TODO: exercise *)
   Admitted.
+
 End Z.
 
 Notation iPropO := (iPropO adequacy.heapΣ).
@@ -226,16 +143,12 @@ Proof.
   iPureIntro. apply pure_step_beta.
 Qed.
 
-Lemma infinite_wp_False' e :
-  infinite_exec e ⊢ WP e {{ _, False }}.
-Proof.
-  (* FIXME: exercise *)
-Admitted.
 Lemma infinite_wp_False e :
   infinite_exec e ⊢ WP e {{ _, False }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 
@@ -266,8 +179,9 @@ Lemma landins_knot_spec (t : val) Φ Ψ :
   (∀ f : val, ⊢ {{ (∀ v : val, {{ Φ v }} f v {{ Ψ }}) }} t f {{ g, ∀ v, {{ Φ v }} g v {{ Ψ }} }}) →
   ⊢ {{ True }} landins_knot t {{ g, ∀ v, {{ Φ v }} g v {{ Ψ }} }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 (** * Impredicative invariants *)
 Import impred_invariants.
@@ -459,8 +373,9 @@ Lemma lazyint_two_spec (h1 h2 f : val) n :
   (∀ f n, {{ LazyInt f n }} h2 f {{ v, ∃ m : Z, ⌜v = #m⌝ }}) -∗
   {{ LazyInt f n }} lazyint_two h1 h2 f {{ v, ∃ m, ⌜v = #m⌝ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
 
 
 (** Exercise: derive the invariant rule for timeless propositions *)
@@ -470,5 +385,6 @@ Lemma inv_open_timeless N E F `{!Timeless F} e Φ :
   (F -∗ WP e @ (E ∖ ↑N) {{ v, ▷ F ∗ Φ v }})%I -∗
   WP e @ E {{ Φ }}.
 Proof.
-  (* FIXME: exercise *)
+  (* TODO: exercise *)
 Admitted.
+
