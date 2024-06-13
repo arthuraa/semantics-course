@@ -187,7 +187,7 @@ Section rules.
   (** For the following execution lemmas, you will find the following lemmas helpful:
     - prim_thread_step
     - fill_prim_step
-    - head_prim_step
+    - base_prim_step
   *)
 
   Lemma src_step_load E K l v :

@@ -149,7 +149,7 @@ Module hoare.
     l ↦ v ∗ l ↦ w ⊢ False.
   Proof.
     iIntros "[Ha Hb]".
-    iPoseProof (mapsto_ne with "Ha Hb") as "%Hneq".
+    iPoseProof (pointsto_ne with "Ha Hb") as "%Hneq".
     done.
   Qed.
 
