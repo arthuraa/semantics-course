@@ -5,10 +5,7 @@ This repository contains the Coq code for [the Semantics course](https://plv.mpi
 ## Installation Instructions
 
 ### Windows
-Unfortunately, Windows does not support the libraries we use for the course very well. If you can use one of the other operating systems (macOS or Linux), we recommend you do so and follow the instructions below.
-Otherwise, you can either use Windows's WSL (Windows Subsystem for Linux) or a VM.
-
-TODO: put instructions for WSL here.
+Unfortunately, Windows does not support Coq and the libraries we are using well. If you can use either Linux or MacOS instead, please follow the instructions below. Otherwise we recommend you set up WSL as explained [here](https://learn.microsoft.com/en-us/windows/wsl/install), proceed with the installation instructions below, and set up [VSCode for use with WSL](https://code.visualstudio.com/docs/remote/wsl).
 
 ### Linux/macOS
 
