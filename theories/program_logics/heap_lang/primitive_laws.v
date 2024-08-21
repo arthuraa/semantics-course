@@ -118,7 +118,7 @@ Proof.
   iMod (gen_heap_alloc_big _ (heap_array _ (replicate (Z.to_nat n) v)) with "Hσ")
     as "(Hσ & Hl & Hm)".
   { apply heap_array_map_disjoint.
-    rewrite replicate_length Z2Nat.id; auto with lia. }
+    rewrite length_replicate Z2Nat.id; auto with lia. }
   iApply step_fupd_intro; first done.
   iModIntro. iFrame "Hσ". do 2 (iSplit; first done).
   iApply wp_value_fupd. iApply "HΦ".
