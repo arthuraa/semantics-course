@@ -94,7 +94,7 @@ Proof.
   iIntros (Hstep) "Hσ He". iMod (wptp_steps with "Hσ He") as "Hwp"; first done.
   iModIntro. iApply (step_fupdN_wand with "Hwp").
   iMod 1 as "(Hσ & Ht & $ & $)"; simplify_eq/=.
-  iMod (fupd_plain_keep_l ∅
+  iMod (fupd_plain_keep_l _ ∅
     ⌜ ∀ e2, s = NotStuck → e2 ∈ es2 → not_stuck e2 σ2 ⌝%I
     (state_interp σ2 ∗
      wptp s es2 (Φs))%I
