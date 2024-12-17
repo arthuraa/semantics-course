@@ -48,7 +48,7 @@ Proof.
   iApply (step_fupd_wand with "H"). iIntros ">($ & He2 & -> & ->) !>".
   rewrite !app_nil_r; iFrame.
   iPureIntro; split; first done.
-  rewrite !app_length; simpl; lia.
+  rewrite !length_app; simpl; lia.
 Qed.
 
 Lemma wptp_steps s n es1 es2 κs σ1 σ2 Φs :

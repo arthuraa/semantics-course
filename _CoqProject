@@ -8,6 +8,8 @@
 -arg -w -arg -redundant-canonical-projection
 # we use Restart for demoing purposes, sometimes
 -arg -w -arg -undo-batch-mode
+# https://gitlab.mpi-sws.org/iris/stdpp/-/issues/216
+-arg -w -arg -notation-incompatible-prefix
 
 # library stuff
 theories/lib/maps.v
