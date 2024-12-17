@@ -65,7 +65,6 @@ theories/type_systems/systemf_mu_state/locations.v
 theories/type_systems/systemf_mu_state/lang.v
 theories/type_systems/systemf_mu_state/notation.v
 theories/type_systems/systemf_mu_state/types.v
-theories/type_systems/systemf_mu_state/types_sol.v
 theories/type_systems/systemf_mu_state/tactics.v
 theories/type_systems/systemf_mu_state/execution.v
 theories/type_systems/systemf_mu_state/parallel_subst.v
@@ -109,8 +108,7 @@ theories/program_logics/logrel/ghost_state.v
 # resources
 theories/program_logics/ra_lib.v
 theories/program_logics/resource_algebras_1.v
-theories/program_logics/resource_algebras_2.v
-theories/program_logics/resource_algebras_sol.v
+#theories/program_logics/resource_algebras_2.v
 
 theories/program_logics/fupd.v
 
@@ -126,28 +124,17 @@ theories/program_logics/reloc/fundamental.v
 theories/program_logics/reloc/adequacy.v
 theories/program_logics/reloc/contextual_refinement.v
 
-theories/program_logics/reloc_sol/ghost_state.v
-theories/program_logics/reloc_sol/src_rules.v
-theories/program_logics/reloc_sol/persistent_bipred.v
-theories/program_logics/reloc_sol/notation.v
-theories/program_logics/reloc_sol/proofmode.v
-theories/program_logics/reloc_sol/syntactic.v
-theories/program_logics/reloc_sol/logrel.v
-theories/program_logics/reloc_sol/fundamental.v
-theories/program_logics/reloc_sol/adequacy.v
-theories/program_logics/reloc_sol/contextual_refinement.v
 
 # concurrency
 theories/program_logics/concurrency.v
 theories/program_logics/concurrent_logrel/syntactic.v
 theories/program_logics/concurrent_logrel/logrel.v
-theories/program_logics/concurrent_logrel/logrel_sol.v
 theories/program_logics/concurrent_logrel/adequacy.v
+
 
 # By removing the # below, you can add the exercise sheets to make
 # <comment-out>
 theories/type_systems/warmup/warmup.v
-theories/type_systems/warmup/warmup_sol.v
 theories/type_systems/stlc/exercises01.v
 theories/type_systems/stlc/exercises02.v
 theories/type_systems/stlc/cbn_logrel.v
@@ -156,5 +143,5 @@ theories/type_systems/systemf/exercises04.v
 theories/type_systems/systemf/exercises05.v
 theories/type_systems/systemf_mu/exercises06.v
 theories/type_systems/systemf_mu_state/exercises07.v
-theories/type_systems/systemf_mu_state/exercises07_sol.v
 # </comment-out>
+
