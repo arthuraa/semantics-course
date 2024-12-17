@@ -265,9 +265,9 @@ Proof.
     + simpl. bs_step_det.
       rewrite subst_is_closed_nil; first by apply big_step_of_val.
       apply sem_type_closed_val in Ha12. naive_solver.
-    + simp type_interp.
+    + by simp type_interp.
   - simp type_interp. exists b1, b2. split_and!.
     + by apply big_step_of_val.
     + simpl. bs_step_det. by apply big_step_of_val.
-    + simp type_interp.
+    + by simp type_interp.
 Qed.
