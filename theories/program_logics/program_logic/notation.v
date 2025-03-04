@@ -43,27 +43,26 @@ Notation "'WP' e ? {{ Φ } }" := (wp MaybeStuck ⊤ ⊤ e%E Φ)
   (at level 20, e, Φ at level 200, only parsing) : bi_scope.
 
 Notation "'WP' e @ s ; E1 ; E2 {{ v , Q } }" := (wp s E1 E2 e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' @  '[' s ;  '/' E1 ;  '/' E2  ']' '/' {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e @ E1 ; E2 {{ v , Q } }" := (wp NotStuck E1 E2 e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' @  '[' E1 ;  '/' E2  ']' '/' {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e @ E1 ; E2 ? {{ v , Q } }" := (wp MaybeStuck E1 E2 e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' @  '[' E1 ;  '/' E2  ']'  '/' ? {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e @ s ; E {{ v , Q } }" := (wp s E E e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' @  '[' s ;  '/' E  ']' '/' {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e @ E {{ v , Q } }" := (wp NotStuck E E e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' @  E  '/' {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e @ E ? {{ v , Q } }" := (wp MaybeStuck E E e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' @  E  '/' ? {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e {{ v , Q } }" := (wp NotStuck ⊤ ⊤ e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
 Notation "'WP' e ? {{ v , Q } }" := (wp MaybeStuck ⊤ ⊤ e%E (λ v, Q))
-  (at level 20, e, Q at level 200,
+  (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' ? {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
-
