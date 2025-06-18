@@ -1,11 +1,11 @@
-# Coq development for the Semantics course at Saarland University
+# Rocq development for the Semantics course at Saarland University
 
-This repository contains the Coq code for [the Semantics course](https://plv.mpi-sws.org/semantics-course/) taught by Derek Dreyer at Saarland University. You can find an overview of how the Coq development maps to [the lecture notes](https://plv.mpi-sws.org/semantics-course/lecturenotes.pdf) of the course in the file [STRUCTURE](STRUCTURE.md).
+This repository contains the Rocq code for [the Semantics course](https://plv.mpi-sws.org/semantics-course/) taught by Derek Dreyer at Saarland University. You can find an overview of how the Rocq development maps to [the lecture notes](https://plv.mpi-sws.org/semantics-course/lecturenotes.pdf) of the course in the file [STRUCTURE](STRUCTURE.md).
 
 ## Installation Instructions
 
 ### Windows
-Unfortunately, Windows does not support Coq and the libraries we are using well. If you can use either Linux or MacOS instead, please follow the instructions below. Otherwise we recommend you set up WSL as explained [here](https://learn.microsoft.com/en-us/windows/wsl/install), proceed with the installation instructions below, and set up [VSCode for use with WSL](https://code.visualstudio.com/docs/remote/wsl).
+Unfortunately, Windows does not support Rocq and the libraries we are using well. If you can use either Linux or MacOS instead, please follow the instructions below. Otherwise we recommend you set up WSL as explained [here](https://learn.microsoft.com/en-us/windows/wsl/install), proceed with the installation instructions below, and set up [VSCode for use with WSL](https://code.visualstudio.com/docs/remote/wsl).
 
 ### Linux/macOS
 
@@ -14,7 +14,7 @@ Clone this repository:
 git clone https://gitlab.mpi-sws.org/FP/semantics-course.git semantics-code
 ```
 
-For the course, we recommend installing Coq through [opam](https://opam.ocaml.org), the OCaml package manager.
+For the course, we recommend installing Rocq through [opam](https://opam.ocaml.org), the OCaml package manager.
 To do so, please visit [the `opam` installation guide](https://opam.ocaml.org/doc/Install.html) and follow the instructions.
 (Typically, this means you just have to execute the following script:)
 ```bash
@@ -45,14 +45,14 @@ make builddep
 Congratulations, you have now installed all the dependencies and you can start to work with the course materials 🎉
 
 
-## Using the Coq code
+## Using the Rocq code
 
 In this repository, you will find all the files from the lecture and templates for exercises.
 We usually make these files available over the course of the semester, together with exercise sheets.
 All exercises are also present in the lecture notes.
-In the file `STRUCTURE.md`, you can find a rough mapping of chapters in the lecture notes to the Coq code.
+In the file `STRUCTURE.md`, you can find a rough mapping of chapters in the lecture notes to the Rocq code.
 
-The Coq code is organized in multiple folders and multiple files. To compile, please execute:
+The Rocq code is organized in multiple folders and multiple files. To compile, please execute:
 
 ```
 make
@@ -62,23 +62,23 @@ make
 
 
 
-## Modifying the Coq code
+## Modifying the Rocq code
 
-To edit the Coq code and complete the exercises, you will need an editor.
-There are a number of editors and editor extensions for working with Coq code.
+To edit the Rocq code and complete the exercises, you will need an editor.
+There are a number of editors and editor extensions for working with Rocq code.
 We recommend one of the following four options:
 
-- **VS Coq** VSCoq is an extension of the editor [VS Code](https://code.visualstudio.com). Download [the extension](https://github.com/coq-community/vscoq) and change the the following setting in VS Code:
+- **VS Rocq** VSRocq is an extension of the editor [VS Code](https://code.visualstudio.com). Download [the extension](https://github.com/coq-community/vscoq) and change the the following setting in VS Code:
 
-Change `Coqtop: Bin Path` to `~/.opam/semantics/bin/`.
+Change `Rocqtop: Bin Path` to `~/.opam/semantics/bin/`.
 (That's where your semantics switch should be installed now.)
 
-- **CoqIDE** is the "default" IDE for Coq. If you have installed Coq via `opam`, you can run `opam install coqide` to install it. You need the GTK+-development libraries installed for that on your system (`gtksourceview3`). Starting with version 2.1, `opam` should automatically ensure that on most operating systems. If that does not work, you may need to install them yourself, depending on your system.
-- **Proof General** adds Coq support to Emacs. You can find it [here](https://github.com/ProofGeneral/PG).
-- **Coqtail** adds Coq support to vim. You can find it [here](https://github.com/whonore/Coqtail).
+- **RocqIDE** is the "default" IDE for Rocq. If you have installed Rocq via `opam`, you can run `opam install coqide` to install it. You need the GTK+-development libraries installed for that on your system (`gtksourceview3`). Starting with version 2.1, `opam` should automatically ensure that on most operating systems. If that does not work, you may need to install them yourself, depending on your system.
+- **Proof General** adds Rocq support to Emacs. You can find it [here](https://github.com/ProofGeneral/PG).
+- **Coqtail** adds Rocq support to vim. You can find it [here](https://github.com/whonore/Rocqtail).
 
 
 
-**NOTE** Many of the Coq files use unicode notation for symbols. For example,
+**NOTE** Many of the Rocq files use unicode notation for symbols. For example,
 instead of writing `nat -> nat -> nat`, we typically write `nat → nat → nat`.
 You can find out [here how to configure them for your editor](https://gitlab.mpi-sws.org/iris/iris/-/blob/master/docs/editor.md).

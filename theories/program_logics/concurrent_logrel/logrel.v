@@ -788,7 +788,7 @@ End channels.
 Section mononat.
   Context `{mono_natG Σ}.
 
-  (** We seal the definitions to prevent Coq from unfolding them. *)
+  (** We seal the definitions to prevent Rocq from unfolding them. *)
   Definition mono_def (γ : gname) n := mono_nat_auth_own γ 1%Qp n.
   Definition mono_aux : seal (@mono_def). Proof. by eexists. Qed.
   Definition mono := mono_aux.(unseal).

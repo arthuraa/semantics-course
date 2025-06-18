@@ -115,8 +115,8 @@ Section rtc.
 
 
   Section typeclass.
-    (* We can use Coq's typeclass mechanism to enable the use of the [transitivity] and [reflexivity] tactics on our goals.
-       Typeclasses enable easy extensions of existing mechanisms -- in this case, by telling Coq to use the knowledge about our definition of [rtc].
+    (* We can use Rocq's typeclass mechanism to enable the use of the [transitivity] and [reflexivity] tactics on our goals.
+       Typeclasses enable easy extensions of existing mechanisms -- in this case, by telling Rocq to use the knowledge about our definition of [rtc].
      *)
     (* [Transitive] is a typeclass. With [Instance] we provide an instance of it. *)
     Global Instance rtc_transitive_inst R : Transitive (rtc R).

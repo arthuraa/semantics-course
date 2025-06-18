@@ -4,7 +4,7 @@ Set Default Proof Using "Type".
 
 (* We declare two notation scopes, one for values and one for expressions.
    Afterwards, we add notations to them, which then do not interfere with
-   any existing Coq notations. *)
+   any existing Rocq notations. *)
 Declare Scope expr_scope.
 Declare Scope val_scope.
 Delimit Scope expr_scope with E.

@@ -4,7 +4,7 @@ From semantics.ts.stlc Require Import lang notation.
 From semantics.lib Require Import sets maps.
 
 (** ** Syntactic typing *)
-(** In the Coq formalization, we exclusively define runtime typing (Curry-style). *)
+(** In the Rocq formalization, we exclusively define runtime typing (Curry-style). *)
 (** It will be an exercise to consider Church-style typing. *)
 
 Inductive type : Set :=

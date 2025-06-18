@@ -19,10 +19,9 @@ Global Instance stuckness_le : SqSubsetEq stuckness := stuckness_leb.
 Global Instance stuckness_le_po : PreOrder stuckness_le.
 Proof. split; by repeat intros []. Qed.
 
-
 Class Swp (PROP EXPR VAL A : Type) :=
   wp : A → coPset → coPset → EXPR → (VAL → PROP) → PROP.
-Global Arguments wp {_ _ _ _ _} _ _ _ _%E _%I.
+Global Arguments wp {_ _ _ _ _} _ _ _ _%_E _%_I.
 Global Instance: Params (@wp) 9 := {}.
 
 Notation "'WP' e @ s ; E1 ; E2 {{ Φ } }" := (wp s E1 E2 e%E Φ)
@@ -66,3 +65,4 @@ Notation "'WP' e {{ v , Q } }" := (wp NotStuck ⊤ ⊤ e%E (λ v, Q))
 Notation "'WP' e ? {{ v , Q } }" := (wp MaybeStuck ⊤ ⊤ e%E (λ v, Q))
   (at level 20, e, Q at level 200, v at level 200 as pattern,
    format "'[hv' 'WP'  e  '/' ? {{  '[' v ,  '/' Q  ']' } } ']'") : bi_scope.
+

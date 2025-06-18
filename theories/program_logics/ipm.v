@@ -71,7 +71,7 @@ Lemma or_intro_l P Q:
 Proof.
   iIntros "P". iLeft. iFrame "P".
 
-  (* [iExact] corresponds to Coq's [exact] *)
+  (* [iExact] corresponds to Rocq's [exact] *)
   Restart.
   iIntros "P". iLeft. iExact "P".
 
@@ -122,18 +122,18 @@ Proof.
     iFrame.
 Abort.
 
-(* Proving pure Coq propositions *)
+(* Proving pure Rocq propositions *)
 Lemma prove_pure P : P ⊢ ⌜42 > 0⌝.
 Proof.
   iIntros "HP".
-  (* [iPureIntro] will switch to a Coq goal, of course losing access to the Iris context *)
+  (* [iPureIntro] will switch to a Rocq goal, of course losing access to the Iris context *)
   iPureIntro. lia.
 Abort.
 
 (* Destructing assumptions *)
 Lemma destruct_ex {X} (p : X → Prop) (Φ : X → iProp) : (∃ x : X, ⌜p x⌝ ∗ Φ x) ⊢ False.
 Proof.
-  (* we can lead the identifier with a [%] to introduce to the Coq context *)
+  (* we can lead the identifier with a [%] to introduce to the Rocq context *)
   iIntros "[%w Hw]".
   iDestruct "Hw" as  "[%Hw1 Hw2]".
 
@@ -148,7 +148,7 @@ Proof.
   Restart.
   iIntros "(%w & Hw1 & Hw2)".
   (* if we first introduce a pure proposition into the Iris context,
-    we can later move it to the Coq context *)
+    we can later move it to the Rocq context *)
   iDestruct "Hw1" as "%Hw1".
 Abort.
 
@@ -229,13 +229,13 @@ Lemma specialize_universal (Φ : nat → iProp) :
   ⊢ (∀ n, ⌜n = 42⌝ -∗ Φ n) -∗ Φ 42.
 Proof.
   iIntros "Hn".
-  (* we can use [$!] to specialize Iris hypotheses with pure Coq terms *)
+  (* we can use [$!] to specialize Iris hypotheses with pure Rocq terms *)
   iSpecialize ("Hn" $! 42).
   iApply "Hn". done.
 
   Restart.
   iIntros "Hn".
-  (* we can combine this with [with] patterns. The [%] pattern will generate a pure Coq goal. *)
+  (* we can combine this with [with] patterns. The [%] pattern will generate a pure Rocq goal. *)
   iApply ("Hn" $! 42 with "[%]").
   done.
 
@@ -393,7 +393,7 @@ Lemma app_ll_correct xs ys v w :
 Proof.
   iIntros "[Hv Hw]".
   iRevert (v) "Hv Hw".
-  (* We use the [iInduction] tactic which lifts Coq's induction into Iris.
+  (* We use the [iInduction] tactic which lifts Rocq's induction into Iris.
     ["IH"] is the name the inductive hypothesis should get in the Iris context.
     Note that the inductive hypothesis is printed above another line [-----□].
     This is another kind of context which you will learn about soon; for now, just

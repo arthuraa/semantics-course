@@ -24,7 +24,7 @@ Global Instance heapGS_irisGS `{!heapGS Σ} : irisGS heap_lang Σ := {
 
 (** Since we use an [option val] instance of [gen_heap], we need to overwrite
 the notations.  That also helps for scopes and coercions. *)
-(** FIXME: Refactor these notations using custom entries once Coq bug #13654
+(** FIXME: Refactor these notations using custom entries once Rocq bug #13654
 has been fixed. *)
 Notation "l ↦{ dq } v" := (pointsto (L:=loc) (V:=option val) l dq (Some v%V))
   (at level 20, format "l  ↦{ dq }  v") : bi_scope.

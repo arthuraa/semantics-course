@@ -5,7 +5,7 @@ From semantics.lib Require Import maps.
 (** * Simply Typed Lambda Calculus *)
 
 (** ** Expressions and values. *)
-(** [Z] is Coq's version of the integers.
+(** [Z] is Rocq's version of the integers.
     All the standard operations, like [+], are defined on it.
 
     The type [binder] is defined as [x ::= BNamed (s: string) | BAnon]

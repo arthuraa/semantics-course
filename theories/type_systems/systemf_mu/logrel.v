@@ -45,8 +45,8 @@ Implicit Types
 .
 
 (**
-  In Coq, we need to make argument why the logical relation is well-defined precise:
-  (for Coq, that means: we need to show that the recursion is terminating).
+  In Rocq, we need to make argument why the logical relation is well-defined precise:
+  (for Rocq, that means: we need to show that the recursion is terminating).
 
   Adding in the recursion over step-indices makes the termination argument slightly more complicated:
     we now have a mutual recursion over types, step-indices, and the case of the logrel (the expression relation is defined in terms of the value relation).
@@ -107,8 +107,8 @@ Equations type_interp (ve : val_or_expr) (t : type) δ (k : nat) : Prop
 
   type_interp (inj_val v) (A → B) δ k =>
     ∃ x e, v = LamV x e ∧ is_closed (x :b: nil) e ∧
-      (* We write ∀ (H:k' ≤ k), .. instead of k' ≤ k → .. due to a longstanding Coq quirk, see
-               https://coq.zulipchat.com/#narrow/stream/237977-Coq-users/topic/.60Program.60.20and.20variable.20names/near/404824378 *)
+      (* We write ∀ (H:k' ≤ k), .. instead of k' ≤ k → .. due to a longstanding Rocq quirk, see
+               https://coq.zulipchat.com/#narrow/stream/237977-Rocq-users/topic/.60Program.60.20and.20variable.20names/near/404824378 *)
       ∀ v' k' (H:k' ≤ k),
         type_interp (inj_val v') A δ k' →
         type_interp (inj_expr (subst' x (of_val v') e)) B δ k' ;

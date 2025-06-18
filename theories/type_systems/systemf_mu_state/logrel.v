@@ -434,8 +434,8 @@ Implicit Types
 .
 
 (**
-  In Coq, we need to make argument why the logical relation is well-defined precise:
-  (for Coq, that means: we need to show that the recursion is terminating).
+  In Rocq, we need to make argument why the logical relation is well-defined precise:
+  (for Rocq, that means: we need to show that the recursion is terminating).
 
   To make this formal, we define a well-founded relation that allows to either decrease the step-index, the type, or switch from the expression case to the value case for recursive calls.
   We define size measures for for all three of these things, and then combine them into a big lexicographic ordering [term_rel].
@@ -510,7 +510,7 @@ Equations type_interp (c : type_case) (t : type) δ (k : nat) (W : world) (v : m
     ∃ v', v = PackV v' ∧
       ∃ τ : sem_type, type_interp val_case A (τ .: δ) k W v';
   (** Defined with two cases: ordinarily, we might require [k > 0] in the body as a guard for the recursive call,
-     but this does not count as a proper guard for termination for Coq -- therefore we handle the 0-case separately.
+     but this does not count as a proper guard for termination for Rocq -- therefore we handle the 0-case separately.
    *)
   type_interp val_case (μ: A) δ (S k) W v =>
     ∃ v', v = (roll v')%V ∧ is_closed [] v' ∧ ∀ kd, type_interp val_case (A.[μ: A/]%ty) δ (k - kd) W v';

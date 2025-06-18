@@ -121,6 +121,7 @@ Lemma LRA_RAMixin {A} `{!PCore A} `{!Op A} `{!Valid A} :
 Proof.
   intros Hequiv. assert (Equivalence Hequiv).
   { subst Hequiv. apply _. }
+  assert (LeibnizEquiv A) as ?. { intros ???. done. }
   simpl. intros [Asso Com PcoreL PcoreIdemp PcoreMono ValidOpL].
   constructor; eauto; try solve_proper.
   - intros ??? ->%leibniz_equiv ->. eauto.

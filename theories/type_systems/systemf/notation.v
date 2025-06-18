@@ -19,7 +19,7 @@ properly. *)
 Notation "# l" := (LitV l%Z%V%stdpp) (at level 8, format "# l").
 Notation "# l" := (Lit l%Z%E%stdpp) (at level 8, format "# l") : expr_scope.
 
-(** Syntax inspired by Coq/Ocaml. Constructions with higher precedence come
+(** Syntax inspired by Rocq/Ocaml. Constructions with higher precedence come
     first. *)
 Notation "( e1 , e2 , .. , en )" := (Pair .. (Pair e1 e2) .. en) : expr_scope.
 Notation "( e1 , e2 , .. , en )" := (PairV .. (PairV e1 e2) .. en) : val_scope.

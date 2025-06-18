@@ -2,7 +2,7 @@ From iris.proofmode Require Import tactics.
 From iris.heap_lang Require Import lang notation.
 From iris.bi Require Import fractional.
 From semantics.pl.heap_lang Require Import primitive_laws proofmode.
-From Coq.Logic Require FunctionalExtensionality.
+From Stdlib.Logic Require FunctionalExtensionality.
 From iris.base_logic Require Import own.
 From semantics.pl Require Import ra_lib.
 From iris.prelude Require Import options.
@@ -34,13 +34,13 @@ From iris.prelude Require Import options.
 (* We can always own a unit *)
 (*Check own_unit.*)
 
-(** Some notes on the setup in Coq:
+(** Some notes on the setup in Rocq:
   1. The `inG` assumptions you see for these lemmas above require that the given algebra has been registered with Iris, similar to the `mono_natG Σ` assumption you have already seen. We will discuss this later in more detail.
 
   2. Iris uses a considerably more general notion of resources than the RAs we consider in the lecture for now (it is actually step-indexed, to resolve some issues you will see soon in the lecture.)
 
     Here's some information on that you may find helpful for understanding this file:
-    - Each RA can define its own notion of "equality" via an [Equiv] instance, and the laws (e.g. [ra_comm]) use this notion instead of Coq's propositional Leibniz equality. (This is to make up for the lack of the ability to quotient via an equivalence relation which is possible in set theory, but not generally available in type theory.)
+    - Each RA can define its own notion of "equality" via an [Equiv] instance, and the laws (e.g. [ra_comm]) use this notion instead of Rocq's propositional Leibniz equality. (This is to make up for the lack of the ability to quotient via an equivalence relation which is possible in set theory, but not generally available in type theory.)
 
     - In Iris, you will usually see the type [cmra]. This is a generalization of RAs that allows validity and equality on the algebra to depend on the current step-index.
       We will discuss this later in the course.
@@ -48,7 +48,7 @@ From iris.prelude Require Import options.
       One can construct a CMRA that does not depend on the step-index by proving some simpler rules ([RAMixin] instead of [CmraMixin] in Iris).
 
   3. Below, we setup a notion of RAs that closely matches the simplified version shown in the lecture, so you do not need to understand the CMRA setup in Iris in detail for now. It is sufficient to do most things we are interested in for now.
-    Our definition essentially matches Iris's notion of RAs (non step-indexed CMRAs), but uses Coq's propositional (Leibniz) equality instead of allowing to define a setoid via an [Equiv] instance. This reduces the overhead for showing that all our things are proper wrt this notion of equivalence.
+    Our definition essentially matches Iris's notion of RAs (non step-indexed CMRAs), but uses Rocq's propositional (Leibniz) equality instead of allowing to define a setoid via an [Equiv] instance. This reduces the overhead for showing that all our things are proper wrt this notion of equivalence.
 
   4. You can type the relevant symbols as follows:
    - ✓ (validity): \valid or \checkmark
@@ -57,7 +57,7 @@ From iris.prelude Require Import options.
  *)
 
 (** ** Setup of our notion of RAs *)
-(** Aside: our notion of RA's is defined via Coq's propositional (Leibniz) equality [=], so we call them "LRA" (Leibniz RA). *)
+(** Aside: our notion of RA's is defined via Rocq's propositional (Leibniz) equality [=], so we call them "LRA" (Leibniz RA). *)
 (** An lra contains a carrier type and the necessary operations:
   - a partial core [pcore]
   - an operation [⋅]
@@ -301,8 +301,8 @@ Section max_nat.
       eexists _. split; first done. exists (MaxNat z); by rewrite max_nat_op.
   Qed.
   (** Iris uses the canonical structure mechanism (which is similar to, but different from typeclasses)
-     of Coq to register the RA structure we define for a type.
-     This will allow us to use elements of the Coq type [max_nat] as normal, but when we need the RA operations and laws on it, Coq will automatically infer them from this declaration.
+     of Rocq to register the RA structure we define for a type.
+     This will allow us to use elements of the Rocq type [max_nat] as normal, but when we need the RA operations and laws on it, Rocq will automatically infer them from this declaration.
 
      You do not need to understand this in detail -- just take this example.
      We usually define the canonical structure by appending a big R to the name of the type on which it is defined.

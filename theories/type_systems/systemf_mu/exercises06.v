@@ -16,7 +16,7 @@ Implicit Types
 (** ** Exercise 5: Keep Rollin' *)
 (** This exercise is slightly tricky.
   We strongly recommend you to first work on the other exercises.
-  You may use the results from this exercise, in particular the fixpoint combinator and its typing, in other exercises, however (which is why it comes first in this Coq file).
+  You may use the results from this exercise, in particular the fixpoint combinator and its typing, in other exercises, however (which is why it comes first in this Rocq file).
  *)
 Section recursion_combinator.
   Variable (f x: string). (* the template of the recursive function *)

@@ -2,7 +2,7 @@ From iris.proofmode Require Import tactics.
 From iris.heap_lang Require Import lang notation.
 From iris.bi Require Import fractional.
 From semantics.pl.heap_lang Require Import primitive_laws proofmode.
-From Coq.Logic Require FunctionalExtensionality.
+From Stdlib.Logic Require FunctionalExtensionality.
 From iris.base_logic Require Import own.
 From semantics.pl Require Import ra_lib resource_algebras_1.
 From iris.prelude Require Import options.

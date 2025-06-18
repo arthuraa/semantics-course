@@ -19,14 +19,14 @@ Implicit Types
 
 (** ** Definition of the logrel *)
 (**
-  In Coq, we need to make argument why the logical relation is well-defined precise:
+  In Rocq, we need to make argument why the logical relation is well-defined precise:
   This holds true in particular for the mutual recursion between the value relation and the expression relation.
   We therefore define a termination measure [mut_measure] that makes sure that for each recursive call, we either
    - decrease the size of the type
    - or switch from the expression case to the value case.
 
   We use the Equations package to define the logical relation, as it's tedious to make the termination
-   argument work with Coq's built-in support for recursive functions.
+   argument work with Rocq's built-in support for recursive functions.
  *)
 Inductive val_or_expr : Type :=
 | inj_val : val → val → val_or_expr

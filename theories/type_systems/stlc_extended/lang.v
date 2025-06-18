@@ -135,7 +135,7 @@ Fixpoint is_closed (X : list string) (e : expr) : bool :=
    is_closed X e0 && is_closed X e1 && is_closed X e2
   end.
 
-(** [closed] states closedness as a Coq proposition, through the [Is_true] transformer. *)
+(** [closed] states closedness as a Rocq proposition, through the [Is_true] transformer. *)
 Definition closed (X : list string) (e : expr) : Prop := Is_true (is_closed X e).
 #[export] Instance closed_proof_irrel X e : ProofIrrel (closed X e).
 Proof. unfold closed. apply _. Qed.

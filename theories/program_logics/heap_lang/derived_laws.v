@@ -17,7 +17,7 @@ with lists of values. *)
 Definition array `{!heapGS Σ} (l : loc) (dq : dfrac) (vs : list val) : iProp Σ :=
   [∗ list] i ↦ v ∈ vs, (l +ₗ i) ↦{dq} v.
 
-(** FIXME: Refactor these notations using custom entries once Coq bug #13654
+(** FIXME: Refactor these notations using custom entries once Rocq bug #13654
 has been fixed. *)
 Notation "l ↦∗{ dq } vs" := (array l dq vs)
   (at level 20, format "l  ↦∗{ dq }  vs") : bi_scope.

@@ -79,7 +79,7 @@ Definition lookup_ll : val :=
 (**
   The lookup [!!!] is stdpp's [lookup_total] that, in contrast to [lookup],
   does not return an [option], but rather a default value.
-  (It computes well using Coq's reduction tactics.)
+  (It computes well using Rocq's reduction tactics.)
  *)
 Lemma lookup_ll_correct xs lv (n : nat) :
   ⊢ {{ is_ll xs lv ∗ ⌜n < length xs⌝ }}

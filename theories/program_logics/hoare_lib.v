@@ -7,7 +7,7 @@ From semantics.pl.heap_lang Require Import adequacy proofmode.
 
 
 Module hoare.
-  (* We make "ghost_state" an axiom for now to simplify the Coq development.
+  (* We make "ghost_state" an axiom for now to simplify the Rocq development.
    In the future, we will quantify over it. *)
   Axiom ghost_state: heapGS heapΣ.
   #[export] Existing Instance ghost_state.
@@ -359,7 +359,7 @@ Module hoare.
     by eapply PureExec_1_elim; last apply _.
   Qed.
 
-  (** In our Coq formalization, a bit of an additional effort arises due to the handling of values:
+  (** In our Rocq formalization, a bit of an additional effort arises due to the handling of values:
     values are always represented using the [Val] constructor, and fully reduced expressions take an additional
     step of computation to get to a [Val].
     See for instance the constructors [PairS], [InjLS], [InjRS].

@@ -34,7 +34,6 @@ theories/type_systems/stlc_extended/ctxstep.v
 theories/type_systems/stlc_extended/parallel_subst.v
 theories/type_systems/stlc_extended/logrel.v
 
-
 # System F
 theories/type_systems/systemf/lang.v
 theories/type_systems/systemf/notation.v
@@ -71,8 +70,6 @@ theories/type_systems/systemf_mu_state/parallel_subst.v
 theories/type_systems/systemf_mu_state/logrel.v
 theories/type_systems/systemf_mu_state/mutbit.v
 
-
-
 # Program logic library
 theories/program_logics/program_logic/notation.v
 theories/program_logics/program_logic/sequential_wp.v
@@ -84,7 +81,6 @@ theories/program_logics/heap_lang/derived_laws.v
 theories/program_logics/heap_lang/proofmode.v
 theories/program_logics/heap_lang/adequacy.v
 theories/program_logics/heap_lang/primitive_laws_nolater.v
-
 
 # Program logic chapter
 theories/program_logics/hoare_lib.v
@@ -104,11 +100,10 @@ theories/program_logics/logrel/adequacy.v
 theories/program_logics/logrel/ghost_state_lib.v
 theories/program_logics/logrel/ghost_state.v
 
-
 # resources
 theories/program_logics/ra_lib.v
 theories/program_logics/resource_algebras_1.v
-#theories/program_logics/resource_algebras_2.v
+theories/program_logics/resource_algebras_2.v
 
 theories/program_logics/fupd.v
 
@@ -124,24 +119,19 @@ theories/program_logics/reloc/fundamental.v
 theories/program_logics/reloc/adequacy.v
 theories/program_logics/reloc/contextual_refinement.v
 
-
 # concurrency
 theories/program_logics/concurrency.v
 theories/program_logics/concurrent_logrel/syntactic.v
 theories/program_logics/concurrent_logrel/logrel.v
 theories/program_logics/concurrent_logrel/adequacy.v
 
-
 # By removing the # below, you can add the exercise sheets to make
-# <comment-out>
-theories/type_systems/warmup/warmup.v
-theories/type_systems/stlc/exercises01.v
-theories/type_systems/stlc/exercises02.v
-theories/type_systems/stlc/cbn_logrel.v
-theories/type_systems/systemf/exercises03.v
-theories/type_systems/systemf/exercises04.v
-theories/type_systems/systemf/exercises05.v
-theories/type_systems/systemf_mu/exercises06.v
-theories/type_systems/systemf_mu_state/exercises07.v
-# </comment-out>
-
+#theories/type_systems/warmup/warmup.v
+#theories/type_systems/stlc/exercises01.v
+#theories/type_systems/stlc/exercises02.v
+#theories/type_systems/stlc/cbn_logrel.v
+#theories/type_systems/systemf/exercises03.v
+#theories/type_systems/systemf/exercises04.v
+#theories/type_systems/systemf/exercises05.v
+#theories/type_systems/systemf_mu/exercises06.v
+#theories/type_systems/systemf_mu_state/exercises07.v

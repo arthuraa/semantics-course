@@ -11,7 +11,7 @@ Section persistent_pred.
     pers_bipred_car :> A → A → PROP;
     pers_bipred_persistent x y : Persistent (pers_bipred_car x y)
   }.
-  Local Arguments PersBiPred _%I {_}.
+  Local Arguments PersBiPred _%_I {_}.
   Global Existing Instances pers_bipred_persistent.
 
   Local Instance persistent_bipred_equiv : Equiv persistent_bipred :=
@@ -48,6 +48,6 @@ Section persistent_pred.
 
 End persistent_pred.
 
-Global Arguments PersBiPred {_ _} _%I {_}.
+Global Arguments PersBiPred {_ _} _%_I {_}.
 Global Arguments pers_bipred_car {_ _} !_ _ _.
 Global Instance: Params (@pers_bipred_car) 2 := {}.

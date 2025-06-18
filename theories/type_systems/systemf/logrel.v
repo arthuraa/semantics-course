@@ -16,7 +16,7 @@ Implicit Types
   (A : type).
 
 (* *** Definition of the logical relation. *)
-(* In Coq, we need to make argument why the logical relation is well-defined
+(* In Rocq, we need to make argument why the logical relation is well-defined
    precise: 
    In particular, we need to show that the mutual recursion between the value
    relation and the expression relation, which are defined in terms of each
@@ -25,9 +25,9 @@ Implicit Types
    the type or switch from the expression case to the value case.
 
    We use the Equations package to define the logical relation, as it's tedious
-   to make the termination argument work with Coq's built-in support for
+   to make the termination argument work with Rocq's built-in support for
    recursive functions---but under the hood, Equations also just encodes it as
-   a Coq Fixpoint.
+   a Rocq Fixpoint.
  *)
 Inductive val_or_expr : Type :=
 | inj_val : val → val_or_expr

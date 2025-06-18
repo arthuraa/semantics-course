@@ -8,7 +8,7 @@ From semantics.lib Require Import maps.
 
 (** * Exercise sheet 0 *)
 
-(* We are using Coq's notion of integers, [Z].
+(* We are using Rocq's notion of integers, [Z].
    All the standard operations, like [+] and [*], are defined on it.
  *)
 Inductive expr :=
@@ -29,7 +29,7 @@ Notation "e1 + e2" := (Plus e1%Z e2%Z) : expr.
 Notation "e1 * e2" := (Mul e1%Z e2%Z) : expr.
 
  (* We can use our nice notation to write expressions!
-    (note the [%E] to tell Coq to parse this as an arithmetical expression with the
+    (note the [%E] to tell Rocq to parse this as an arithmetical expression with the
     notations we just defined).
   *)
  Check (Const 5 + Const 5)%E.
@@ -62,7 +62,7 @@ Admitted.
 (** Exercise 2: Open arithmetical expressions *)
 
 (* Finally, we introduce variables into our arithmetic expressions.
-   Variables are of Coq's [string] type.
+   Variables are of Rocq's [string] type.
  *)
 Inductive expr' :=
   | Var (x: string)
