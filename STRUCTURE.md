@@ -1,6 +1,6 @@
-# Structure of the Coq development
+# Structure of the Rocq development
 
-This document roughly maps the lecture notes and exercises to the Coq development.
+This document roughly maps the lecture notes and exercises to the Rocq development.
 
 ## Basic structure
 Chapters 1-4 are included in the `theories/type_systems` folder.
@@ -8,11 +8,11 @@ Chapters 5-10 are included in the `theories/program_logics` folder.
 All of the paths given below are to be understood relative to these folders.
 
 ## Chapter 1
-* The `warmup` folder contains a quick reminder of some concepts of Coq as well as an introduction to some features of `stdpp`.
+* The `warmup` folder contains a quick reminder of some concepts of Rocq as well as an introduction to some features of `stdpp`.
 * The `stlc` folder contains an implementation of the untyped lambda-calculus and the simply-typed lambda-calculus, with different reduction semantics, including syntactic and semantic type safety proofs.
 * The `stlc_extended` folder features an extended version of our core calculus with products, sums, and more operators. You can get more practice with the core concepts by completing the extensions, e.g. extending the type soundness proofs.
 
-| Section | Coq entry point          |
+| Section | Rocq entry point          |
 |---------|--------------------------|
 | 1.0     | `stlc/lang.v`            |
 | 1.1     | `stlc/lang.v`            |
@@ -30,7 +30,7 @@ Special notes on some exercises:
 ## Chapter 2
 * The development and exercises for Chapter 2 can be found in folder `systemf`.
 
-| Section | Coq entry point                             |
+| Section | Rocq entry point                             |
 |---------|---------------------------------------------|
 | 2.1     | `systemf/lang.v`, `systemf/bigstep.v`       |
 | 2.3     | `systemf/types.v`                           |
@@ -42,17 +42,17 @@ Special notes on some exercises:
 | 2.9     | `systemf/binary_logrel.v`                   |
 
 Special notes on some exercises:
-* Exercises from Sections 2.1 - 2.3 are not present in Coq, except for Exercises 18 and 19.
+* Exercises from Sections 2.1 - 2.3 are not present in Rocq, except for Exercises 18 and 19.
 * For Exercise 21, gaps are present in `systemf/types.v`.
 * For Exercise 26, gaps are present in `systemf/logrel.v`.
-* Exercise 32 is not present in the Coq code.
+* Exercise 32 is not present in the Rocq code.
 * For Exercise 33, gaps have been left in `systemf/binary_logrel.v`.
-* Exercise 34 is not present in the Coq code.
+* Exercise 34 is not present in the Rocq code.
 
 ## Chapter 3
 * The development and exercises for Chapter 3 can be found in folder `systemf_mu`.
 
-| Section | Coq entry point                             |
+| Section | Rocq entry point                             |
 |---------|---------------------------------------------|
 | 3.0     | `systemf_mu/lang.v`, `systemf_mu/types.v`   |
 | 3.1     | `systemf_mu/untyped_encoding.v`             |
@@ -61,19 +61,19 @@ Special notes on some exercises:
 
 
 Special notes on some exercises:
-* Exercise 36 is not present in the Coq development.
+* Exercise 36 is not present in the Rocq development.
 * For Exercise 37, gaps are left in `systemf_mu/types.v`.
-* Exercise 39 is not present in the Coq development.
+* Exercise 39 is not present in the Rocq development.
 * For Exercises 40, gaps are left in `systemf_mu/pure.v`.
-* Exercise 41 is already proved for you in Coq.
+* Exercise 41 is already proved for you in Rocq.
 * For Exercise 42, gaps are left in `systemf_mu/logrel.v`.
-* Exercise 44 is already proved for you in Coq.
+* Exercise 44 is already proved for you in Rocq.
 
 ## Chapter 4
 * The development and exercises for Chapter 4 can be found in folder `systemf_mu_state`.
-  Sections 4.7 and 4.8 are not treated in the Coq development.
+  Sections 4.7 and 4.8 are not treated in the Rocq development.
 
-| Section | Coq entry point                                                   |
+| Section | Rocq entry point                                                   |
 |---------|-------------------------------------------------------------------|
 | 4.0     | `systemf_mu_state/lang.v`, `systemf_mu_state/types.v`             |
 | 4.3     | `systemf_mu_state/types.v`                                        |
@@ -83,7 +83,7 @@ Special notes on some exercises:
 Special notes on some exercises:
 * Exercises 51, 52, and 55 have already been proved for you.
 * For Exercises 54, gaps are left in `systemf_mu_state/logrel.v`.
-* Exercise 56 is not present in the Coq development.
+* Exercise 56 is not present in the Rocq development.
 
 ## Chapter 5
 * The development for Chapter 5 can be found in the file `hoare.v`.
@@ -104,7 +104,7 @@ Special notes on some exercises:
 * The development for Chapter 8 is distributed over multiple files and folders.
 * Exercises are provided in-line with the material.
 
-| Section | Coq entry point                                                   |
+| Section | Rocq entry point                                                   |
 |---------|-------------------------------------------------------------------|
 | 8.0     | `logrel/ghost_state.v`                                            |
 | 8.1     | `resource_algebras.v`                                             |
@@ -121,15 +121,15 @@ In particular, for ReLoC/ the binary logical relation, the following files are o
 - `reloc/adequacy.v` proves the contextual refinement result (Section 8.4.4).
 
 Notes on exercises:
-* Exercise 116 (coming up with an interesting refinement and proving it) is not present in the Coq development.
+* Exercise 116 (coming up with an interesting refinement and proving it) is not present in the Rocq development.
 
 ## Chapter 9
-* Chapter 9 is not explicitly formalized in the Coq development. We recommend that you look at the Iris source code if you are interested.
+* Chapter 9 is not explicitly formalized in the Rocq development. We recommend that you look at the Iris source code if you are interested.
 
 ## Chapter 10
 * The development for Chapter 10 is distributed over multiple files and folders.
 
-| Section | Coq entry point                                                   |
+| Section | Rocq entry point                                                   |
 |---------|-------------------------------------------------------------------|
 | 10.0    | `concurrency.v`                                                   |
 | 10.1    | `concurrency.v`                                                   |
