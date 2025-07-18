@@ -391,7 +391,7 @@ Proof.
   rewrite -delete_insert_ne; last done.
   rewrite -subst_map_insert.
   iApply He.
-  rewrite insert_commute; last done.
+  rewrite insert_insert_ne; last done.
   iApply context_interp_insert.
   { simpl. iIntros (w') "!>". by iApply "IH". }
   by iApply (context_interp_insert with "Hw").
@@ -551,7 +551,7 @@ Lemma compat_unroll Δ Γ e A :
   TY Δ; Γ ⊨ (unroll e) : (A.[(μ: A)%ty/]).
 Proof.
   iIntros (He δ γ) "#Hctx/=".
-  rewrite lookup_delete.
+  rewrite lookup_delete_eq.
   smart_wp_bind (subst_map _ _) v "Hv" He.
   simpl. rewrite mu_interp_unfold /mu_rec /=.
   iDestruct "Hv" as "(%w & -> & Hv)".

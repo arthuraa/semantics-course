@@ -83,7 +83,7 @@ Ltac map_solver :=
          | |-  (⤉ _) !! _ = Some _ =>
              rewrite fmap_insert
          | |- <[ ?p := _ ]> _ !! ?p = Some _ =>
-             apply lookup_insert
+             apply lookup_insert_eq
          | |- <[ _ := _ ]> _ !! _ = Some _ =>
              rewrite lookup_insert_ne; [ | congruence]
          end.

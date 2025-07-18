@@ -47,7 +47,7 @@ Proof.
     rewrite -delete_difference init_heap_singleton.
     split.
     - apply insert_mono. apply map_empty_subseteq.
-    - rewrite map_difference_empty. rewrite delete_insert; done.
+    - rewrite map_difference_empty. rewrite delete_insert_id; done.
   }
   unfold mutbit_t.
   simp type_interp. eexists _, _. split; first done. split.
@@ -63,9 +63,9 @@ Proof.
       simpl in Hsat3. destruct Hsat3 as (σ0 & Heq & Hincl & _).
       destruct Heq as [-> | ->].
       - exists #0. split; last eauto.
-        eapply lookup_weaken; last done. apply lookup_insert.
+        eapply lookup_weaken; last done. apply lookup_insert_eq.
       - exists #1. split; last eauto.
-        eapply lookup_weaken; last done. apply lookup_insert.
+        eapply lookup_weaken; last done. apply lookup_insert_eq.
     }
     destruct Hred_load as (v' & -> & -> & -> & ? & Hv').
 
@@ -80,8 +80,8 @@ Proof.
       specialize (wext_lookup _ _ 0 INV Hincl2 ltac:(done)) as (i' & Hlook').
       specialize (wext_lookup _ _ _ _ Hincl3 Hlook') as (? & ?).
       eapply wsat_update; [done | done | ].
-      intros h [-> | ->]; (split; [rewrite lookup_insert; eauto | ]).
-      all: rewrite insert_insert; subst INV; simpl; eauto.
+      intros h [-> | ->]; (split; [rewrite lookup_insert_eq; eauto | ]).
+      all: rewrite insert_insert_eq; subst INV; simpl; eauto.
     + invert_det_steps Hred.
       eapply (red_nsteps_fill [BinOpLCtx _ (LitV _); IfCtx _ _; AppRCtx _]) in Hred as (n5 & e5 & h6 & ? & Hload & Hred).
       eapply (load_nsteps_inv' _ _ _ _ _ _ (λ v, v = #1)) in Hload; [ | done | ].
@@ -97,8 +97,8 @@ Proof.
       specialize (wext_lookup _ _ 0 INV Hincl2 ltac:(done)) as (i' & Hlook').
       specialize (wext_lookup _ _ _ _ Hincl3 Hlook') as (? & ?).
       eapply wsat_update; [done | done | ].
-      intros h [-> | ->]; (split; [rewrite lookup_insert; eauto | ]).
-      all: rewrite insert_insert; subst INV; simpl; eauto.
+      intros h [-> | ->]; (split; [rewrite lookup_insert_eq; eauto | ]).
+      all: rewrite insert_insert_eq; subst INV; simpl; eauto.
   - (* get *)
     simp type_interp. eexists _, _. split; first done. split; first done.
     intros v1 kd1 W3 Hincl2 Hv1. simpl.
@@ -111,9 +111,9 @@ Proof.
       simpl in Hsat3. destruct Hsat3 as (σ0 & Heq & Hincl & _).
       destruct Heq as [-> | ->].
       - exists #0. split; last eauto.
-        eapply lookup_weaken; last done. apply lookup_insert.
+        eapply lookup_weaken; last done. apply lookup_insert_eq.
       - exists #1. split; last eauto.
-        eapply lookup_weaken; last done. apply lookup_insert.
+        eapply lookup_weaken; last done. apply lookup_insert_eq.
     }
     destruct Hred_load as (v' & -> & -> & -> & ? & Hv').
 

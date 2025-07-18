@@ -188,8 +188,8 @@ Proof.
   - naive_solver.
   - rewrite lookup_insert_Some. intros [[-> ->]|[Hne Hlook]].
     + do 4 eexists.
-      split; first by rewrite lookup_insert.
-      split; first by rewrite lookup_insert.
+      split; first by rewrite lookup_insert_eq.
+      split; first by rewrite lookup_insert_eq.
       split; first by eapply to_of_val.
       split; first by eapply to_of_val.
       done.
@@ -1029,19 +1029,19 @@ Proof.
     intros y Hin. destruct (decide (x = y)); subst; first set_solver.
     eapply elem_of_elements in Hin. eapply elem_of_union in Hin as [].
     + set_solver.
-    + rewrite dom_fmap in H2. eapply elem_of_list_further.
+    + rewrite dom_fmap in H2. eapply list_elem_of_further.
       by eapply elem_of_elements.
   - rewrite dom_insert.
     intros y Hin. destruct (decide (x = y)); subst; first set_solver.
     eapply elem_of_elements in Hin. eapply elem_of_union in Hin as [].
     + set_solver.
-    + rewrite dom_fmap in H2. eapply elem_of_list_further.
+    + rewrite dom_fmap in H2. eapply list_elem_of_further.
       by eapply elem_of_elements.
   - rewrite dom_insert.
     intros y Hin. destruct (decide (x = y)); subst; first set_solver.
     eapply elem_of_elements in Hin. eapply elem_of_union in Hin as [].
     + set_solver.
-    + eapply elem_of_list_further.
+    + eapply list_elem_of_further.
       by eapply elem_of_elements.
 Qed.
 

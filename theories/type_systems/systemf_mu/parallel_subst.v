@@ -79,17 +79,17 @@ Proof.
   revert x map; induction e; intros xx map; simpl;
   try (f_equal; eauto).
   - case_decide.
-    + simplify_eq/=. rewrite lookup_insert.
+    + simplify_eq/=. rewrite lookup_insert_eq.
       rewrite (subst_map_is_closed []); [done | apply He' | ].
       intros ? ?. apply not_elem_of_nil.
     + rewrite lookup_insert_ne; done.
   - destruct x; simpl; first done.
     + case_decide.
-      * simplify_eq/=. by rewrite delete_insert_delete.
+      * simplify_eq/=. by rewrite delete_insert_eq.
       * rewrite delete_insert_ne; last by congruence. done.
   - destruct x; simpl; first done.
     + case_decide.
-      * simplify_eq/=. by rewrite delete_insert_delete.
+      * simplify_eq/=. by rewrite delete_insert_eq.
       * rewrite delete_insert_ne; last by congruence. done.
 Qed.
 
@@ -109,7 +109,7 @@ Proof.
   revert map es x; induction e; intros map v0 xx Hclosed; simpl;
   try (f_equal; eauto).
   - destruct (decide (xx=x)) as [->|Hne].
-    + rewrite lookup_delete // lookup_insert //. simpl.
+    + rewrite lookup_delete_eq // lookup_insert_eq //. simpl.
       rewrite decide_True //.
     + rewrite lookup_delete_ne // lookup_insert_ne //.
       destruct (_ !! x) as [rr|] eqn:Helem.
@@ -118,14 +118,14 @@ Proof.
       * simpl. rewrite decide_False //.
   - destruct x; simpl; first by auto.
     case_decide.
-    + simplify_eq. rewrite delete_idemp delete_insert_delete. done.
-    + rewrite delete_insert_ne //; last congruence. rewrite delete_commute. apply IHe.
+    + simplify_eq. rewrite delete_delete_eq delete_insert_eq. done.
+    + rewrite delete_insert_ne //; last congruence. rewrite delete_delete. apply IHe.
       eapply subst_is_closed_subseteq; last done.
       apply map_delete_subseteq.
   - destruct x; simpl; first by auto.
     case_decide.
-    + simplify_eq. rewrite delete_idemp delete_insert_delete. done.
-    + rewrite delete_insert_ne //; last congruence. rewrite delete_commute. apply IHe2.
+    + simplify_eq. rewrite delete_delete_eq delete_insert_eq. done.
+    + rewrite delete_insert_ne //; last congruence. rewrite delete_delete. apply IHe2.
       eapply subst_is_closed_subseteq; last done.
       apply map_delete_subseteq.
 Qed.
@@ -206,7 +206,7 @@ Lemma subst_is_closed_insert X e f θ :
 Proof.
   intros Hcl Hcl' x e'.
   destruct (decide (x = f)) as [<- | ?].
-  - rewrite lookup_insert. intros [= <-]. done.
+  - rewrite lookup_insert_eq. intros [= <-]. done.
   - rewrite lookup_insert_ne; last done.
     intros Hlook. eapply Hcl'.
     rewrite lookup_delete_ne; done.

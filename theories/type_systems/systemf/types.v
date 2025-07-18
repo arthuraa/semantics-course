@@ -492,7 +492,7 @@ Proof.
   - inversion 1; subst; auto.
   - intros Hp % var_inversion.
     destruct (decide (x = y)).
-    + subst. rewrite lookup_insert in Hp. injection Hp as ->.
+    + subst. rewrite lookup_insert_eq in Hp. injection Hp as ->.
       eapply typed_weakening; [done| |lia]. apply map_empty_subseteq.
     + rewrite lookup_insert_ne in Hp; last done. auto.
   - destruct y as [ | y].
@@ -503,8 +503,8 @@ Proof.
     }
     intros (A' & C & -> & Hwf & Hty) % lam_inversion.
     econstructor; last done. destruct decide as [Heq|].
-    + injection Heq as [= ->]. by rewrite insert_insert in Hty.
-    + rewrite insert_commute in Hty; last naive_solver. eauto.
+    + injection Heq as [= ->]. by rewrite insert_insert_eq in Hty.
+    + rewrite insert_insert_ne in Hty; last naive_solver. eauto.
   - intros (C & Hty1 & Hty2) % app_inversion. eauto.
   - intros (? & Hop & H1) % unop_inversion.
     destruct op; inversion Hop; subst; eauto.
@@ -522,8 +522,8 @@ Proof.
     econstructor; first done.
     + eapply IHe1. done.
     + destruct decide as [Heq | ].
-      * injection Heq as [= ->]. by rewrite fmap_insert insert_insert in Hty2.
-      * rewrite fmap_insert in Hty2. rewrite insert_commute in Hty2; last naive_solver.
+      * injection Heq as [= ->]. by rewrite fmap_insert insert_insert_eq in Hty2.
+      * rewrite fmap_insert in Hty2. rewrite insert_insert_ne in Hty2; last naive_solver.
         eapply IHe2. rewrite type_wf_closed in Hty2; first done.
         eapply syn_typed_wf; last apply He'. done.
   - intros (? & ? & -> & ? & ?) % pair_inversion. eauto.

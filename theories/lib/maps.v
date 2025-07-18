@@ -76,8 +76,8 @@ Section map.
   Proof. apply map_empty_subseteq. Qed.
 
 
-  Lemma lookup_delete m i : delete i m !! i = None.
-  Proof. apply lookup_delete. Qed.
+  Lemma lookup_delete_eq m i : delete i m !! i = None.
+  Proof. apply lookup_delete_eq. Qed.
   Lemma lookup_delete_ne m i j : i ≠ j → delete i m !! j = m !! j.
   Proof. apply lookup_delete_ne. Qed.
   Lemma lookup_delete_Some m i j y :
@@ -91,40 +91,40 @@ Section map.
   Proof. apply lookup_delete_None. Qed.
   Lemma delete_empty i : delete i ∅ = (∅ : gmap K A).
   Proof. apply delete_empty. Qed.
-  Lemma delete_commute m i j :
+  Lemma delete_delete m i j :
     delete i (delete j m) = delete j (delete i m).
-  Proof. apply delete_commute. Qed.
+  Proof. apply delete_delete. Qed.
   Lemma delete_insert_ne m i j x :
     i ≠ j → delete i (<[j:=x]>m) = <[j:=x]>(delete i m).
   Proof. apply delete_insert_ne. Qed.
-  Lemma delete_notin m i : m !! i = None → delete i m = m.
-  Proof. apply delete_notin. Qed.
-  Lemma delete_idemp m i :
+  Lemma delete_id m i : m !! i = None → delete i m = m.
+  Proof. apply delete_id. Qed.
+  Lemma delete_delete_eq m i :
     delete i (delete i m) = delete i m.
-  Proof. apply delete_idemp. Qed.
-  Lemma delete_insert m i x :
+  Proof. apply delete_delete_eq. Qed.
+  Lemma delete_insert_id m i x :
     m !! i = None → delete i (<[i:=x]>m) = m.
-  Proof. apply delete_insert. Qed.
-  Lemma delete_insert_delete m i x :
+  Proof. apply delete_insert_id. Qed.
+  Lemma delete_insert_eq m i x :
     delete i (<[i:=x]>m) = delete i m.
-  Proof. apply delete_insert_delete. Qed.
+  Proof. apply delete_insert_eq. Qed.
   Lemma delete_subseteq m i : delete i m ⊆ m.
   Proof. apply delete_subseteq. Qed.
   Lemma delete_mono m1 m2 i : m1 ⊆ m2 → delete i m1 ⊆ delete i m2.
   Proof. apply delete_mono. Qed.
 
   (** ** Properties of the [insert] operation *)
-  Lemma lookup_insert m i x : <[i:=x]>m !! i = Some x.
-  Proof. apply lookup_insert. Qed.
+  Lemma lookup_insert_eq m i x : <[i:=x]>m !! i = Some x.
+  Proof. apply lookup_insert_eq. Qed.
   Lemma lookup_insert_rev m i x y : <[i:=x]>m !! i = Some y → x = y.
   Proof. apply lookup_insert_rev. Qed.
   Lemma lookup_insert_ne m i j x : i ≠ j → <[i:=x]>m !! j = m !! j.
   Proof. apply lookup_insert_ne. Qed.
-  Lemma insert_insert m i x y : <[i:=x]>(<[i:=y]>m) = <[i:=x]>m.
-  Proof. apply insert_insert. Qed.
-  Lemma insert_commute m i j x y :
+  Lemma insert_insert_eq m i x y : <[i:=x]>(<[i:=y]>m) = <[i:=x]>m.
+  Proof. apply insert_insert_eq. Qed.
+  Lemma insert_insert_ne m i j x y :
     i ≠ j → <[i:=x]>(<[j:=y]>m) = <[j:=y]>(<[i:=x]>m).
-  Proof. apply insert_commute. Qed.
+  Proof. apply insert_insert_ne. Qed.
   Lemma lookup_insert_Some m i j x y :
     <[i:=x]>m !! j = Some y ↔ (i = j ∧ x = y) ∨ (i ≠ j ∧ m !! j = Some y).
   Proof. apply lookup_insert_Some. Qed.
@@ -138,11 +138,11 @@ Section map.
   Proof. apply insert_id. Qed.
   Lemma insert_non_empty m i x : <[i:=x]>m ≠ ∅.
   Proof. apply insert_non_empty. Qed.
-  Lemma insert_delete_insert m i x : <[i:=x]>(delete i m) = <[i:=x]> m.
-  Proof. apply insert_delete_insert. Qed.
-  Lemma insert_delete m i x :
+  Lemma insert_delete_eq m i x : <[i:=x]>(delete i m) = <[i:=x]> m.
+  Proof. apply insert_delete_eq. Qed.
+  Lemma insert_delete_id m i x :
     m !! i = Some x → <[i:=x]> (delete i m) = m.
-  Proof. apply insert_delete. Qed.
+  Proof. apply insert_delete_id. Qed.
 
   Lemma insert_subseteq m i x : m !! i = None → m ⊆ <[i:=x]>m.
   Proof. apply insert_subseteq. Qed.

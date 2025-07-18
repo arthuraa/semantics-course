@@ -120,13 +120,13 @@ Lemma typed_substitutivity e e' Γ x A B :
 Proof.
   intros He'. revert B Γ; induction e as [y | y | | |]; intros B Γ; simpl.
   - intros Hp%var_inversion; destruct decide; subst; eauto.
-    + rewrite lookup_insert in Hp. injection Hp as ->.
+    + rewrite lookup_insert_eq in Hp. injection Hp as ->.
       eapply typed_weakening; first done. apply map_empty_subseteq.
     + rewrite lookup_insert_ne in Hp; last done. auto.
   - intros (C & D & z & -> & -> & Hty)%lam_inversion.
     econstructor. destruct decide as [|Heq]; simplify_eq.
-    + by rewrite insert_insert in Hty.
-    + rewrite insert_commute in Hty; last naive_solver. eauto.
+    + by rewrite insert_insert_eq in Hty.
+    + rewrite insert_insert_ne in Hty; last naive_solver. eauto.
   - intros (C & Hty1 & Hty2)%app_inversion; eauto.
   - intros ->%lit_int_inversion. eauto.
   - intros (-> & Hty1 & Hty2)%plus_inversion; eauto.

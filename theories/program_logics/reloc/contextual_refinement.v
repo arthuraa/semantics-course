@@ -332,7 +332,7 @@ Theorem logrel_typesafety Σ `{reloc_preGS Σ} e e' e1 Δ A σ σ' :
 Proof.
   intros Hlog ??%rtc_thread_erased_step.
   cut (adequate NotStuck e σ (λ v _, ∃ v' h, rtc thread_step (e', σ) (of_val v', h) ∧ (ObsType A → v = v'))).
-  { intros [_ Ha]; eapply Ha; [done.. | ]. apply elem_of_list_singleton; done. }
+  { intros [_ Ha]; eapply Ha; [done.. | ]. apply list_elem_of_singleton; done. }
   eapply logrel_adequate; eauto.
 Qed.
 

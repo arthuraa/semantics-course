@@ -763,7 +763,7 @@ Proof.
   induction 1 as [|Γ θ v y B Hvals Hctx IH].
   - naive_solver.
   - rewrite lookup_insert_Some. intros [[-> ->]|[Hne Hlook]].
-    + do 2 eexists. split; first by rewrite lookup_insert.
+    + do 2 eexists. split; first by rewrite lookup_insert_eq.
       split; first by eapply to_of_val. done.
     + eapply IH in Hlook as (e & w & Hlook & He & Hval).
       do 2 eexists; split; first by rewrite lookup_insert_ne.
@@ -1122,7 +1122,7 @@ Proof.
   eapply closed_subst_weaken; [ | | apply He].
   - eapply subst_is_closed_subseteq; last done.
     apply map_delete_subseteq.
-  - intros y Hy%Hdom2 Hn. apply elem_of_list_singleton.
+  - intros y Hy%Hdom2 Hn. apply list_elem_of_singleton.
     apply not_elem_of_dom in Hn. apply elem_of_dom in Hy.
     destruct (decide (x = y)) as [<- | Hneq]; first done.
     rewrite lookup_delete_ne in Hn; last done.
@@ -1603,8 +1603,8 @@ Proof.
     rewrite -insert_union_singleton_l. apply insert_mono.
     apply map_empty_subseteq.
   - unfold init_heap. simpl. rewrite right_id. rewrite -delete_difference map_difference_empty.
-    rewrite delete_union delete_singleton left_id.
-    rewrite delete_notin; done.
+    rewrite delete_union delete_singleton_eq left_id.
+    rewrite delete_id; done.
 Qed.
 
 Lemma compat_new Δ Γ e a :
@@ -1646,11 +1646,11 @@ Proof.
   intros Hred. eapply load_nsteps_inv in Hred as [(-> & -> & -> & Hirred) | [-> Hstep]]; last apply to_of_val.
   { exfalso; apply Hirred.
     exists (of_val v), σ. apply base_contextual_step.
-    econstructor. eapply lookup_weaken; last done. apply lookup_insert.
+    econstructor. eapply lookup_weaken; last done. apply lookup_insert_eq.
   }
   eapply load_step_inv in Hstep; last apply to_of_val.
   destruct Hstep as (? & v' & [= <-] & Hl & -> & ->).
-  eapply lookup_weaken_inv in Hincl; [ | apply lookup_insert | done]. subst v'.
+  eapply lookup_weaken_inv in Hincl; [ | apply lookup_insert_eq | done]. subst v'.
   rewrite to_of_val. eexists _, _. split_and!; [reflexivity | reflexivity | done | ].
 
   (* use that FO types are simple. *)

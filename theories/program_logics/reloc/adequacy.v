@@ -66,6 +66,6 @@ Theorem refines_typesafety Σ `{reloc_preGS Σ} (τ : ∀ _ : relocGS Σ, semtyp
 Proof.
   intros ? Hlog ?%rtc_thread_erased_step.
   cut (adequate NotStuck e σ (λ v _, ∃ v' h', rtc thread_step (e', σ) (of_val v', h') ∧ True)).
-  { intros [_ ?]. eapply adequate_not_stuck; [ done .. | ]. by apply elem_of_list_singleton. }
+  { intros [_ ?]. eapply adequate_not_stuck; [ done .. | ]. by apply list_elem_of_singleton. }
   eapply (refines_adequate _ τ); eauto.
 Qed.

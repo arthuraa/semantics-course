@@ -150,7 +150,7 @@ Proof.
   induction 1 as [|Γ θ v y B Hvals Hctx IH].
   - naive_solver.
   - rewrite lookup_insert_Some. intros [[-> ->]|[Hne Hlook]].
-    + do 2 eexists. split; first by rewrite lookup_insert.
+    + do 2 eexists. split; first by rewrite lookup_insert_eq.
       split; first by eapply to_of_val. done.
     + eapply IH in Hlook as (e & w & Hlook & He & Hval).
       do 2 eexists; split; first by rewrite lookup_insert_ne.

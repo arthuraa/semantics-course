@@ -100,7 +100,7 @@ Proof.
      wptp s es2 (Φs))%I
     with "[$Hσ $Ht]") as "(%&Hσ&Hwp)".
   { iIntros "(Hσ & Ht)" (e' -> He').
-    move: He' => /(elem_of_list_split _ _)[?[?->]].
+    move: He' => /(list_elem_of_split _ _)[?[?->]].
     iDestruct (big_sepL2_app_inv_l with "Ht") as (Φs1 Φs2 ?) "[? Hwp]".
     iDestruct (big_sepL2_cons_inv_l with "Hwp") as (Φ Φs3 ->) "[Hwp ?]".
     iMod (wp_not_stuck with "Hσ Hwp") as "$"; auto. }
@@ -161,7 +161,7 @@ Proof.
   destruct t2 as [ | e' []]; simpl in Hlen; [lia | | lia].
   rewrite big_sepL2_singleton.
   iApply ("Hφ" with "[//] [%] Hσ Hval").
-  intros ->. apply Hns; first done. by rewrite elem_of_list_singleton.
+  intros ->. apply Hns; first done. by rewrite list_elem_of_singleton.
 Qed.
 
 (** Since the full adequacy statement is quite a mouthful, we prove some more
@@ -199,7 +199,7 @@ Proof.
   destruct (adequate_not_stuck NotStuck e1 σ1 φ Had t2 σ2 e2) as [?|(κ&e3&σ3&efs&?)];
     rewrite ?eq_None_not_Some; auto.
   { exfalso. eauto. }
-  destruct (elem_of_list_split t2 e2) as (t2'&t2''&->); auto.
+  destruct (list_elem_of_split t2 e2) as (t2'&t2''&->); auto.
   right; exists (t2' ++ e3 :: t2'' ++ efs), σ3, κ; econstructor; eauto.
 Qed.
 
@@ -221,9 +221,9 @@ Proof.
     iSplit; iPureIntro.
     + intros ??. destruct t2'; last done. intros [= ->].
       rewrite to_of_val in Hv. injection Hv as ->. done.
-    + intros ? ?. rewrite elem_of_list_singleton. naive_solver.
+    + intros ? ?. rewrite list_elem_of_singleton. naive_solver.
   - iModIntro. iSplit; iPureIntro.
     + intros ??. destruct t2'; last done. intros [= ->].
       rewrite to_of_val in Hv. done.
-    + intros ? ?. rewrite elem_of_list_singleton. naive_solver.
+    + intros ? ?. rewrite list_elem_of_singleton. naive_solver.
 Qed.

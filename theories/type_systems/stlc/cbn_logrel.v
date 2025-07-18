@@ -156,7 +156,7 @@ Proof.
   induction 1 as [|Γ θ e y B Hvals Hctx IH].
   - naive_solver.
   - rewrite lookup_insert_Some. intros [[-> ->]|[Hne Hlook]].
-    + eexists; first by rewrite lookup_insert.
+    + eexists; first by rewrite lookup_insert_eq.
     + eapply IH in Hlook as (e' & Hlook & He).
       eexists; split; first by rewrite lookup_insert_ne.
       done.

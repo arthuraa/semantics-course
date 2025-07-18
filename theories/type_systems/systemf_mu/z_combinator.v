@@ -37,10 +37,10 @@ Proof.
 
   intros θ δ k Hctx.
   simpl.
-  rewrite lookup_delete_ne; last done. rewrite !lookup_delete.
-  rewrite delete_idemp.
-  rewrite (delete_commute _ "x" "f").
-  rewrite delete_idemp.
+  rewrite lookup_delete_ne; last done. rewrite !lookup_delete_eq.
+  rewrite delete_delete_eq.
+  rewrite (delete_delete _ "x" "f").
+  rewrite delete_delete_eq.
   set (θ' := (delete (M := gmap.gmap _ _) "f" (delete "x" (M := gmap.gmap _ _) θ))).
   specialize (sem_context_rel_dom _ _ _ _ Hctx) as Hdom.
   assert (is_closed ["x"; "f"; "f"; "x"] (subst_map θ' e)).
@@ -102,7 +102,7 @@ Proof.
   }
   eapply He.
 
-  rewrite insert_commute; last done.
+  rewrite insert_insert_ne; last done.
   econstructor.
   { done. }
   apply (sem_context_rel_insert _ _ _ _ (LamV _ _)).
@@ -135,13 +135,13 @@ Proof.
 
   intros θ δ k Hctx.
   simpl.
-  rewrite !lookup_delete.
-  rewrite (delete_commute _ "x" "y").
-  rewrite (delete_commute _ "x" "z").
-  rewrite !lookup_delete.
-  rewrite (delete_commute _ "y" "z").
-  rewrite delete_idemp.
-  rewrite !lookup_delete.
+  rewrite !lookup_delete_eq.
+  rewrite (delete_delete _ "x" "y").
+  rewrite (delete_delete _ "x" "z").
+  rewrite !lookup_delete_eq.
+  rewrite (delete_delete _ "y" "z").
+  rewrite delete_delete_eq.
+  rewrite !lookup_delete_eq.
   erewrite subst_map_is_closed; [ | done | ].
   2: { intros. apply not_elem_of_nil. }
 

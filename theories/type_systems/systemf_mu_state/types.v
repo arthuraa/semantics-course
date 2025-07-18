@@ -698,7 +698,7 @@ Proof.
   - inversion 1; subst; auto.
   - intros Hp % var_inversion.
     destruct (decide (x = y)).
-    + subst. rewrite lookup_insert in Hp. injection Hp as ->.
+    + subst. rewrite lookup_insert_eq in Hp. injection Hp as ->.
       eapply typed_weakening; [done| | done |lia]. apply map_empty_subseteq.
     + rewrite lookup_insert_ne in Hp; last done. auto.
   - destruct y as [ | y].
@@ -709,8 +709,8 @@ Proof.
     }
     intros (A' & C & -> & Hwf & Hty) % lam_inversion.
     econstructor; last done. destruct decide as [Heq|].
-    + injection Heq as [= ->]. by rewrite insert_insert in Hty.
-    + rewrite insert_commute in Hty; last naive_solver. eauto.
+    + injection Heq as [= ->]. by rewrite insert_insert_eq in Hty.
+    + rewrite insert_insert_ne in Hty; last naive_solver. eauto.
   - intros (C & Hty1 & Hty2) % app_inversion. eauto.
   - intros (? & Hop & H1) % unop_inversion.
     destruct op; inversion Hop; subst; eauto.
@@ -730,8 +730,8 @@ Proof.
     econstructor; first done.
     + eapply IHe1. done.
     + destruct decide as [Heq | ].
-      * injection Heq as [= ->]. by rewrite fmap_insert insert_insert in Hty2.
-      * rewrite fmap_insert in Hty2. rewrite insert_commute in Hty2; last naive_solver.
+      * injection Heq as [= ->]. by rewrite fmap_insert insert_insert_eq in Hty2.
+      * rewrite fmap_insert in Hty2. rewrite insert_insert_ne in Hty2; last naive_solver.
         revert Hty2. rewrite heap_ctx_closed//=. intros Hty2.
         eapply IHe2. rewrite type_wf_closed in Hty2; first done.
         eapply syn_typed_wf; last apply He'; eauto.
@@ -1144,7 +1144,7 @@ Lemma heap_type_insert h Σ e v l B :
 Proof.
   intros Hheap Hlook Hty Hval l' A. rewrite lookup_insert_Some.
   intros [(-> & ->)|(Hne & Hlook')].
-  - exists v. split; first eapply lookup_union_Some_l, lookup_insert.
+  - exists v. split; first eapply lookup_union_Some_l, lookup_insert_eq.
     eapply of_to_val in Hval as ->.
     eapply typed_weakening; first eapply Hty; eauto.
     by eapply heap_ctx_insert.
@@ -1167,7 +1167,7 @@ Proof.
   eapply Hheap in Hlook' as Hlook''.
   destruct Hlook'' as (w & Hold & Hval').
   destruct (decide (l = l')); subst.
-  - exists v. split; first eapply lookup_insert.
+  - exists v. split; first eapply lookup_insert_eq.
     eapply of_to_val in Hval as ->.
     rewrite Hlook in Hlook'. by injection Hlook' as ->.
   - rewrite lookup_insert_ne //=. eauto.

@@ -312,7 +312,7 @@ Proof.
   induction 1 as [|Γ θ v y B Hvals Hctx IH].
   - naive_solver.
   - rewrite lookup_insert_Some. intros [[-> ->]|[Hne Hlook]].
-    + do 2 eexists. split; first by rewrite lookup_insert.
+    + do 2 eexists. split; first by rewrite lookup_insert_eq.
       split; first by eapply to_of_val. done.
     + eapply IH in Hlook as (e & w & Hlook & He & Hval).
       do 2 eexists; split; first by rewrite lookup_insert_ne.
@@ -644,7 +644,7 @@ Proof.
   eapply closed_subst_weaken; [ | | apply He].
   - eapply subst_is_closed_subseteq; last done.
     apply map_delete_subseteq.
-  - intros y Hy%Hdom2 Hn. apply elem_of_list_singleton.
+  - intros y Hy%Hdom2 Hn. apply list_elem_of_singleton.
     apply not_elem_of_dom in Hn. apply elem_of_dom in Hy.
     destruct (decide (x = y)) as [<- | Hneq]; first done.
     rewrite lookup_delete_ne in Hn; last done.

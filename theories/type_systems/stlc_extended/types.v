@@ -124,7 +124,7 @@ Proof.
   intros He'. revert B Γ; induction e as [y | y | | | | | | |  | | ]; intros B Γ; simpl.
   - intros Hp % var_inversion.
     destruct (decide (x = y)).
-    + subst. rewrite lookup_insert in Hp. injection Hp as ->.
+    + subst. rewrite lookup_insert_eq in Hp. injection Hp as ->.
       eapply typed_weakening; [done| ]. apply map_empty_subseteq.
     + rewrite lookup_insert_ne in Hp; last done. auto.
   - destruct y as [ | y].
@@ -135,8 +135,8 @@ Proof.
     }
     intros (A' & C & -> & Hty) % lam_inversion.
     econstructor. destruct decide as [Heq|].
-    + injection Heq as [= ->]. by rewrite insert_insert in Hty.
-    + rewrite insert_commute in Hty; last naive_solver. eauto.
+    + injection Heq as [= ->]. by rewrite insert_insert_eq in Hty.
+    + rewrite insert_insert_ne in Hty; last naive_solver. eauto.
   - intros (C & Hty1 & Hty2) % app_inversion. eauto.
   - inversion 1; subst; auto.
   - intros (-> & Hty1 & Hty2)%plus_inversion; eauto.

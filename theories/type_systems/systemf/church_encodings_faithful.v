@@ -205,7 +205,7 @@ Proof.
   intros θ1 θ2 δ Hctx. eapply sem_soundness in Hty as (Htycl1 & Htycl2 & Hty).
   specialize (Hty θ1 θ2 δ Hctx). simp type_interp in Hty.
   replace (subst_map θ2 (eta_bool e)) with (eta_bool (subst_map θ2 e)); last first.
-  { simpl; rewrite lookup_delete_ne //= !lookup_delete //. }
+  { simpl; rewrite lookup_delete_ne //= !lookup_delete_eq //. }
   destruct Hty as (v1 & v2 & Hbs1 & Hbs2 & Hty).
   eapply closure_under_partial_reduction with (K1 := HoleCtx) (K2:= (AppLCtx (AppLCtx (TAppCtx HoleCtx) bool_true) bool_false)); eauto.
   simpl; change (v2 <> _ _)%E with (eta_bool v2). clear Hctx Hbs1 Hbs2.
