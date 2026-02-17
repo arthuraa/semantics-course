@@ -17,3 +17,5 @@ builddep
 _opam
 tags
 syncro/
+.envrc
+.direnv
