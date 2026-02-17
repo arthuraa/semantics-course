@@ -1,4 +1,4 @@
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import lang notation.
 From iris.heap_lang Require Export metatheory.
 From semantics.pl.reloc Require Export notation src_rules.

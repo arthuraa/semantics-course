@@ -1,4 +1,4 @@
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import lang notation primitive_laws adequacy.
 From semantics.pl.concurrent_logrel Require Import syntactic logrel.
 From iris.prelude Require Import options.

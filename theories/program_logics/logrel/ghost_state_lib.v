@@ -1,4 +1,4 @@
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import lang notation.
 From iris.base_logic.lib Require Import mono_nat ghost_var ghost_map.
 From semantics.pl Require Import invariant_lib.

@@ -1,4 +1,4 @@
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import lang primitive_laws notation.
 From iris.base_logic Require Import invariants.
 From semantics.pl.heap_lang Require Import adequacy proofmode primitive_laws_nolater.

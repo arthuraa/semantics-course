@@ -1,5 +1,5 @@
 From iris.proofmode Require Import coq_tactics reduction spec_patterns.
-From iris.proofmode Require Export tactics.
+From iris.proofmode Require Export proofmode.
 From iris.heap_lang Require Export tactics.
 From iris.heap_lang Require Import notation.
 From semantics.pl.heap_lang Require Export derived_laws.

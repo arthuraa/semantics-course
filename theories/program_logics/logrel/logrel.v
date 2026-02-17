@@ -1,5 +1,5 @@
 
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import lang notation.
 From iris.heap_lang Require Import metatheory.
 From semantics.pl Require Export invariant_lib.

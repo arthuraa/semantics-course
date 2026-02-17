@@ -6,7 +6,7 @@ From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Export lang notation tactics.
 From semantics.pl.reloc Require Import ghost_state logrel.
 From iris.proofmode Require Import coq_tactics reduction spec_patterns.
-From iris.proofmode Require Export tactics.
+From iris.proofmode Require Export proofmode.
 From semantics.pl.heap_lang Require Import primitive_laws.
 From iris.bi Require Import derived_laws.
 Import bi.

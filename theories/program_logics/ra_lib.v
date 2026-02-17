@@ -1,4 +1,4 @@
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import lang notation.
 From iris.bi Require Import fractional.
 From semantics.pl.heap_lang Require Import primitive_laws proofmode.
