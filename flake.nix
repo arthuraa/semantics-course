@@ -8,9 +8,11 @@
     stdpp.flake = false;
     iris.url = "git+https://gitlab.mpi-sws.org/iris/iris.git";
     iris.flake = false;
+    nix-github-actions.url = "github:nix-community/nix-github-actions";
+    nix-github-actions.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, flake-parts, stdpp, iris, ... }:
+  outputs = inputs@{ self, flake-parts, stdpp, iris, nixpkgs, nix-github-actions, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         # To import a flake module
@@ -44,11 +46,17 @@
 
         packages.default = pkgs.coqPackages.semantics-course;
 
+        checks.default = self'.packages.default;
+
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
+
+        githubActions = nix-github-actions.lib.mkGithubMatrix {
+          checks = nixpkgs.lib.getAttrs [ "x86_64-linux" "aarch64-darwin" ] self.checks;
+        };
 
         overlays.default = final: prev: {
           coqPackages = prev.coqPackages.overrideScope (final': prev': {
