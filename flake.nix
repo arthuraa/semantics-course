@@ -40,7 +40,7 @@
             pkgs.coqPackages.coq-lsp
           ];
           inputsFrom = [
-            pkgs.coqPackages.semantics-course
+            self'.packages.default
           ];
         };
 
@@ -61,17 +61,14 @@
         overlays.default = final: prev: {
           coqPackages = prev.coqPackages.overrideScope (final': prev': {
             stdpp = prev'.lib.overrideCoqDerivation {
-              defaultVersion = "dev";
-              release.dev.src = stdpp;
+              version = stdpp.outPath;
             } prev'.stdpp;
             iris = prev'.lib.overrideCoqDerivation {
-              defaultVersion = "dev";
-              release.dev.src = iris;
+              version = iris.outPath;
             } prev'.iris;
             semantics-course = prev'.mkCoqDerivation {
               pname = "semantics-course";
-              defaultVersion = "dev";
-              release.dev.src = ./.;
+              version = ./.;
               propagatedBuildInputs = [
                 final.rocq-core
                 final.rocqPackages.stdlib
